@@ -237,3 +237,139 @@ label {
   color: var(--muted);
   margin-bottom: 0.375rem;
 }
+
+/* ============================================
+   Portal Theme — DreamersJoy Floral Studio
+   ============================================ */
+[data-theme="portal"] {
+  --bg: #FAFAF8;
+  --surface: #FFFFFF;
+  --surface-2: #F5F0EB;
+  --border: #E8E0D8;
+  --text: #334155;
+  --muted: #8B7355;
+  --accent: #334155;
+  --accent-light: #6B7C6E;
+  --success: #6B7C6E;
+  --warning: #D4B8A0;
+  --danger: #C45B4B;
+}
+
+[data-theme="portal"] body,
+[data-theme="portal"] {
+  background: #FAFAF8;
+  color: #334155;
+  font-family: 'Jost', system-ui, sans-serif;
+}
+
+[data-theme="portal"] .portal-heading {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+[data-theme="portal"] input,
+[data-theme="portal"] textarea,
+[data-theme="portal"] select {
+  background: #FFFFFF;
+  border: 1px solid #E8E0D8;
+  color: #334155;
+}
+
+[data-theme="portal"] input:focus,
+[data-theme="portal"] textarea:focus,
+[data-theme="portal"] select:focus {
+  border-color: #8B7355;
+  box-shadow: 0 0 0 2px rgba(139, 115, 85, 0.15);
+}
+
+[data-theme="portal"] input::placeholder,
+[data-theme="portal"] textarea::placeholder {
+  color: #C9B8A8;
+}
+
+[data-theme="portal"] .portal-card {
+  background: #FFFFFF;
+  border: 1px solid #E8E0D8;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.2s;
+}
+
+[data-theme="portal"] .portal-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="portal"] .portal-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: 'Jost', system-ui, sans-serif;
+  transition: all 0.2s;
+  cursor: pointer;
+  border: none;
+}
+
+[data-theme="portal"] .portal-btn-primary {
+  background: #334155;
+  color: #FAFAF8;
+}
+
+[data-theme="portal"] .portal-btn-primary:hover {
+  background: #1A1A2E;
+}
+
+[data-theme="portal"] .portal-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+[data-theme="portal"] .portal-btn-secondary {
+  background: #F5F0EB;
+  color: #334155;
+  border: 1px solid #E8E0D8;
+}
+
+[data-theme="portal"] .portal-btn-secondary:hover {
+  background: #E8E0D8;
+}
+
+[data-theme="portal"] .portal-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-family: 'Jost', system-ui, sans-serif;
+}
+
+[data-theme="portal"] .portal-badge-confirmed {
+  background: rgba(107, 124, 110, 0.12);
+  color: #6B7C6E;
+}
+
+[data-theme="portal"] .portal-badge-pending {
+  background: rgba(212, 184, 160, 0.25);
+  color: #8B7355;
+}
+
+[data-theme="portal"] .portal-badge-completed {
+  background: rgba(51, 65, 85, 0.08);
+  color: #334155;
+}
+
+[data-theme="portal"] ::-webkit-scrollbar-track {
+  background: #FAFAF8;
+}
+
+[data-theme="portal"] ::-webkit-scrollbar-thumb {
+  background: #E8E0D8;
+}
+
+[data-theme="portal"] ::-webkit-scrollbar-thumb:hover {
+  background: #C9B8A8;
+}
