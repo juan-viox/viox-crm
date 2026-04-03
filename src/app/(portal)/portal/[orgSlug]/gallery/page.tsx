@@ -29,11 +29,8 @@ export default function BrandedGalleryPage() {
 
   useEffect(() => {
     async function load() {
-      const { data: org } = await supabase
-        .from('organizations')
-        .select('id, name, slug, primary_color, secondary_color, accent_color, display_font, body_font, logo_url, tagline')
-        .eq('slug', orgSlug)
-        .single()
+      const res = await fetch(\`/api/v1/branding/\${orgSlug}\`)
+      const org = res.ok ? await res.json() : null
 
       if (!org) { setLoading(false); return }
 
