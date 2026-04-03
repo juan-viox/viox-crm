@@ -29,7 +29,7 @@ export default function BrandedGalleryPage() {
 
   useEffect(() => {
     async function load() {
-      const res = await fetch(\`/api/v1/branding/\${orgSlug}\`)
+      const res = await fetch(`/api/v1/branding/${orgSlug}`)
       const org = res.ok ? await res.json() : null
 
       if (!org) { setLoading(false); return }

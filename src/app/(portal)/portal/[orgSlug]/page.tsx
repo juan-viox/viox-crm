@@ -46,7 +46,7 @@ export default function BrandedPortalDashboard() {
   useEffect(() => {
     async function load() {
       // Fetch org branding
-      const res = await fetch(\`/api/v1/branding/\${orgSlug}\`)
+      const res = await fetch(`/api/v1/branding/${orgSlug}`)
       const org = res.ok ? await res.json() : null
 
       if (!org) {
