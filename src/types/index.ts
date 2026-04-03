@@ -149,3 +149,84 @@ export interface Document {
   file_size?: number
   created_at: string
 }
+
+export interface EmailTemplate {
+  id: string
+  organization_id: string
+  name: string
+  subject: string
+  body: string
+  category: string
+  variables: string[]
+  created_by?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface Product {
+  id: string
+  organization_id: string
+  name: string
+  description?: string
+  price: number
+  unit: string
+  is_active: boolean
+  created_at: string
+}
+
+export interface Invoice {
+  id: string
+  organization_id: string
+  contact_id?: string
+  deal_id?: string
+  invoice_number: string
+  status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled'
+  issue_date: string
+  due_date?: string
+  subtotal: number
+  tax_rate: number
+  tax_amount: number
+  total: number
+  notes?: string
+  created_at: string
+  updated_at: string
+  contact?: Contact
+  deal?: Deal
+  items?: InvoiceItem[]
+}
+
+export interface InvoiceItem {
+  id: string
+  invoice_id: string
+  product_id?: string
+  description: string
+  quantity: number
+  unit_price: number
+  total: number
+  sort_order: number
+}
+
+export type WorkflowTrigger = 'contact_created' | 'deal_created' | 'deal_stage_changed' | 'deal_won' | 'deal_lost' | 'activity_created' | 'form_submitted' | 'manual'
+
+export type WorkflowActionType = 'send_email' | 'create_activity' | 'update_field' | 'create_deal' | 'add_tag' | 'notify_user' | 'wait'
+
+export interface WorkflowAction {
+  id: string
+  type: WorkflowActionType
+  config: Record<string, unknown>
+}
+
+export interface Workflow {
+  id: string
+  organization_id: string
+  name: string
+  description?: string
+  trigger_type: WorkflowTrigger
+  trigger_config: Record<string, unknown>
+  actions: WorkflowAction[]
+  is_active: boolean
+  run_count: number
+  last_run_at?: string
+  created_at: string
+  updated_at: string
+}

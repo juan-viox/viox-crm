@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { Loader2, Save, Settings, Kanban } from 'lucide-react'
+import { Loader2, Save, Settings, Kanban, Upload } from 'lucide-react'
 
 export default function SettingsPage() {
   const [orgName, setOrgName] = useState('')
@@ -76,16 +76,29 @@ export default function SettingsPage() {
         </div>
       </form>
 
-      <Link href="/settings/pipeline" className="card flex items-center justify-between hover:border-[var(--accent)] transition-colors">
-        <div className="flex items-center gap-3">
-          <Kanban className="w-5 h-5" style={{ color: 'var(--accent)' }} />
-          <div>
-            <p className="font-semibold">Pipeline Stages</p>
-            <p className="text-sm" style={{ color: 'var(--muted)' }}>Manage deal stages, colors, and order</p>
+      <div className="space-y-3">
+        <Link href="/settings/pipeline" className="card flex items-center justify-between hover:border-[var(--accent)] transition-colors">
+          <div className="flex items-center gap-3">
+            <Kanban className="w-5 h-5" style={{ color: 'var(--accent)' }} />
+            <div>
+              <p className="font-semibold">Pipeline Stages</p>
+              <p className="text-sm" style={{ color: 'var(--muted)' }}>Manage deal stages, colors, and order</p>
+            </div>
           </div>
-        </div>
-        <span style={{ color: 'var(--muted)' }}>&rarr;</span>
-      </Link>
+          <span style={{ color: 'var(--muted)' }}>&rarr;</span>
+        </Link>
+
+        <Link href="/settings/import" className="card flex items-center justify-between hover:border-[var(--accent)] transition-colors">
+          <div className="flex items-center gap-3">
+            <Upload className="w-5 h-5" style={{ color: 'var(--accent)' }} />
+            <div>
+              <p className="font-semibold">Import Data</p>
+              <p className="text-sm" style={{ color: 'var(--muted)' }}>Import contacts, companies, or deals from CSV</p>
+            </div>
+          </div>
+          <span style={{ color: 'var(--muted)' }}>&rarr;</span>
+        </Link>
+      </div>
     </div>
   )
 }

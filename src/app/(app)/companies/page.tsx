@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Plus, Building2 } from 'lucide-react'
 import EmptyState from '@/components/shared/EmptyState'
 import Avatar from '@/components/shared/Avatar'
+import CompanyExportButton from '@/components/companies/CompanyExportButton'
 
 export default async function CompaniesPage() {
   const supabase = await createServerSupabaseClient()
@@ -23,9 +24,12 @@ export default async function CompaniesPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Companies</h1>
-        <Link href="/companies/new" className="btn btn-primary">
-          <Plus className="w-4 h-4" /> Add Company
-        </Link>
+        <div className="flex items-center gap-3">
+          {companies && companies.length > 0 && <CompanyExportButton companies={companies} />}
+          <Link href="/companies/new" className="btn btn-primary">
+            <Plus className="w-4 h-4" /> Add Company
+          </Link>
+        </div>
       </div>
 
       {!companies || companies.length === 0 ? (

@@ -19,13 +19,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   const orgName = profile?.organization?.name ?? 'My Organization'
   const userName = profile?.full_name ?? user.email ?? 'User'
+  const userRole = profile?.role ?? 'member'
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar orgName={orgName} />
+      <Sidebar orgName={orgName} userName={userName} userRole={userRole} />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <TopBar userName={userName} />
-        <main className="flex-1 overflow-y-auto p-6">
+        <TopBar userName={userName} orgName={orgName} />
+        <main className="flex-1 overflow-y-auto p-6 animate-page-enter">
           {children}
         </main>
       </div>

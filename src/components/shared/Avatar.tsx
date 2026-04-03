@@ -25,22 +25,20 @@ export default function Avatar({
   name,
   size = 'md',
   src,
+  status,
 }: {
   name: string
   size?: 'sm' | 'md' | 'lg'
   src?: string
+  status?: 'online' | 'offline' | 'away'
 }) {
-  if (src) {
-    return (
-      <img
-        src={src}
-        alt={name}
-        className={`${sizes[size]} rounded-full object-cover`}
-      />
-    )
-  }
-
-  return (
+  const avatar = src ? (
+    <img
+      src={src}
+      alt={name}
+      className={`${sizes[size]} rounded-full object-cover`}
+    />
+  ) : (
     <div
       className={`${sizes[size]} rounded-full flex items-center justify-center font-semibold text-white shrink-0`}
       style={{ background: getColor(name) }}
@@ -49,4 +47,14 @@ export default function Avatar({
       {getInitials(name)}
     </div>
   )
+
+  if (status) {
+    return (
+      <div className={`avatar-ring ${status}`}>
+        {avatar}
+      </div>
+    )
+  }
+
+  return avatar
 }

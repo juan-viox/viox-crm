@@ -1,5 +1,5 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { formatCurrency, formatDate } from '@/lib/utils'
+import { formatCurrency } from '@/lib/utils'
 import DashboardClient from './DashboardClient'
 
 export default async function DashboardPage() {
@@ -8,14 +8,15 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('organization_id')
+    .select('organization_id, full_name')
     .eq('id', user!.id)
     .single()
 
   const orgId = profile?.organization_id
+  const firstName = profile?.full_name?.split(' ')[0] ?? 'there'
 
-  // Fetch stats in parallel
-  const [contactsRes, dealsRes, wonDealsRes, activitiesRes, recentActivitiesRes] = await Promise.all([
+  // Fetch all stats in parallel
+  const [contactsRes, dealsRes, wonDealsRes, activitiesRes, recentActivitiesRes, stagesRes, upcomingRes] = await Promise.all([
     supabase.from('contacts').select('id', { count: 'exact', head: true }).eq('organization_id', orgId),
     supabase.from('deals').select('id, amount').eq('organization_id', orgId).eq('status', 'open'),
     supabase.from('deals').select('amount, created_at').eq('organization_id', orgId).eq('status', 'won'),
@@ -29,16 +30,28 @@ export default async function DashboardPage() {
       .eq('organization_id', orgId)
       .order('created_at', { ascending: false })
       .limit(10),
+    supabase.from('deal_stages')
+      .select('id, name, color, position')
+      .eq('organization_id', orgId)
+      .order('position'),
+    supabase.from('activities')
+      .select('id, title, type, due_date, completed')
+      .eq('organization_id', orgId)
+      .eq('completed', false)
+      .gte('due_date', new Date().toISOString().split('T')[0])
+      .order('due_date', { ascending: true })
+      .limit(5),
   ])
 
   const totalContacts = contactsRes.count ?? 0
   const openDeals = dealsRes.data ?? []
   const openDealCount = openDeals.length
-  const openDealTotal = openDeals.reduce((sum, d) => sum + (d.amount || 0), 0)
   const wonDeals = wonDealsRes.data ?? []
   const revenue = wonDeals.reduce((sum, d) => sum + (d.amount || 0), 0)
   const tasksDueToday = activitiesRes.count ?? 0
   const recentActivities = recentActivitiesRes.data ?? []
+  const stages = stagesRes.data ?? []
+  const upcomingTasks = upcomingRes.data ?? []
 
   // Revenue by month (last 6 months)
   const revenueByMonth: { month: string; revenue: number }[] = []
@@ -71,12 +84,41 @@ export default async function DashboardPage() {
 
   const leadSources = Object.entries(sourceCounts).map(([name, value]) => ({ name, value }))
 
+  // Pipeline snapshot: count deals per stage
+  const pipelineSnapshot = stages.map(stage => {
+    const stageDeals = openDeals.filter(d => (d as any).stage_id === stage.id)
+    return {
+      name: stage.name,
+      color: stage.color,
+      count: stageDeals.length,
+    }
+  })
+
+  // For pipeline snapshot we need stage_id on deals
+  const { data: dealsWithStages } = await supabase
+    .from('deals')
+    .select('stage_id, amount')
+    .eq('organization_id', orgId)
+    .eq('status', 'open')
+
+  const pipelineData = stages.map(stage => {
+    const stDeals = (dealsWithStages ?? []).filter(d => d.stage_id === stage.id)
+    return {
+      name: stage.name,
+      color: stage.color,
+      count: stDeals.length,
+      amount: stDeals.reduce((sum, d) => sum + (d.amount || 0), 0),
+    }
+  })
+
   return (
     <DashboardClient
+      firstName={firstName}
       stats={{
         totalContacts,
         openDealCount,
         revenue: formatCurrency(revenue),
+        revenueRaw: revenue,
         tasksDueToday,
       }}
       revenueByMonth={revenueByMonth}
@@ -87,6 +129,14 @@ export default async function DashboardPage() {
         title: a.title,
         contactName: a.contact ? `${a.contact.first_name} ${a.contact.last_name}` : null,
         createdAt: a.created_at,
+      }))}
+      pipelineData={pipelineData}
+      upcomingTasks={upcomingTasks.map(t => ({
+        id: t.id,
+        title: t.title,
+        type: t.type,
+        dueDate: t.due_date,
+        completed: t.completed,
       }))}
     />
   )
