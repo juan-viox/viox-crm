@@ -44,46 +44,24 @@ export default function SignupPage() {
       return
     }
 
-    // Create organization
-    const slug = orgName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-    const { data: org, error: orgError } = await supabase
-      .from('organizations')
-      .insert({ name: orgName, slug })
-      .select()
-      .single()
-
-    if (orgError) {
-      setError(orgError.message)
-      setLoading(false)
-      return
-    }
-
-    // Create profile
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .insert({
-        id: authData.user.id,
-        organization_id: org.id,
+    // Create organization + profile via admin API (bypasses RLS)
+    const setupRes = await fetch('/api/auth/setup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: authData.user.id,
         email,
-        full_name: fullName,
-        role: 'owner',
-      })
+        fullName,
+        orgName,
+      }),
+    })
 
-    if (profileError) {
-      setError(profileError.message)
+    const setupData = await setupRes.json()
+    if (!setupRes.ok) {
+      setError(setupData.error || 'Failed to create organization')
       setLoading(false)
       return
     }
-
-    // Create default deal stages
-    const defaultStages = [
-      { name: 'Lead', position: 0, color: '#8888a0', organization_id: org.id },
-      { name: 'Qualified', position: 1, color: '#6c5ce7', organization_id: org.id },
-      { name: 'Proposal', position: 2, color: '#fdcb6e', organization_id: org.id },
-      { name: 'Negotiation', position: 3, color: '#e17055', organization_id: org.id },
-      { name: 'Won', position: 4, color: '#00b894', organization_id: org.id },
-    ]
-    await supabase.from('deal_stages').insert(defaultStages)
 
     setSuccess(true)
     setLoading(false)
