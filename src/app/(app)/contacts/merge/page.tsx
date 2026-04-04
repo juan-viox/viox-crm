@@ -32,7 +32,7 @@ const MERGE_FIELDS = [
   { key: 'last_name', label: 'Last Name' },
   { key: 'email', label: 'Email' },
   { key: 'phone', label: 'Phone' },
-  { key: 'title', label: 'Title' },
+  { key: 'job_title', label: 'Title' },
   { key: 'source', label: 'Source' },
   { key: 'status', label: 'Status' },
   { key: 'company_id', label: 'Company' },

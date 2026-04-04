@@ -102,9 +102,9 @@ export default function ContactDetailClient({
                     {contact.first_name} {contact.last_name}
                   </h1>
                   <div className="flex items-center gap-3 mt-1 flex-wrap">
-                    {contact.title && (
+                    {contact.job_title && (
                       <span className="text-sm" style={{ color: 'var(--muted)' }}>
-                        {contact.title}
+                        {contact.job_title}
                       </span>
                     )}
                     {contact.company?.name && (
@@ -304,14 +304,14 @@ export default function ContactDetailClient({
                   </div>
                 </div>
               )}
-              {contact.title && (
+              {contact.job_title && (
                 <div className="flex items-center gap-3 text-sm">
                   <div className="p-1.5 rounded-md" style={{ background: 'rgba(253,203,110,0.12)' }}>
                     <Briefcase className="w-3.5 h-3.5" style={{ color: 'var(--warning)' }} />
                   </div>
                   <div className="min-w-0">
                     <p className="text-xs" style={{ color: 'var(--muted)' }}>Title</p>
-                    <p>{contact.title}</p>
+                    <p>{contact.job_title}</p>
                   </div>
                 </div>
               )}

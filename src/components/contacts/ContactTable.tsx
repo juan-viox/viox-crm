@@ -112,7 +112,7 @@ export default function ContactTable({ contacts }: { contacts: Contact[] }) {
       c.email ?? '',
       c.phone ?? '',
       c.company?.name ?? '',
-      c.title ?? '',
+      c.job_title ?? '',
       c.status,
       c.source ?? '',
     ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
@@ -282,9 +282,9 @@ export default function ContactTable({ contacts }: { contacts: Contact[] }) {
                           <span className="font-medium text-sm">
                             {c.first_name} {c.last_name}
                           </span>
-                          {c.title && (
+                          {c.job_title && (
                             <p className="text-xs" style={{ color: 'var(--muted)' }}>
-                              {c.title}
+                              {c.job_title}
                             </p>
                           )}
                         </div>
