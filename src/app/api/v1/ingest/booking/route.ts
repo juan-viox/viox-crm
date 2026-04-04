@@ -24,7 +24,7 @@ export async function POST(request: Request) {
       .from('cinematic_sites')
       .select('organization_id')
       .eq('api_key', apiKey)
-      .eq('active', true)
+      .eq('is_active', true)
       .single()
 
     if (!site) {
@@ -62,7 +62,6 @@ export async function POST(request: Request) {
             email,
             phone: phone || null,
             source: 'booking',
-            status: 'lead',
           })
           .select('id')
           .single()
@@ -77,7 +76,6 @@ export async function POST(request: Request) {
           last_name: lastName || '',
           phone: phone || null,
           source: 'booking',
-          status: 'lead',
         })
         .select('id')
         .single()

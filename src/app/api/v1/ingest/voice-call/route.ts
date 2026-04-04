@@ -24,7 +24,7 @@ export async function POST(request: Request) {
       .from('cinematic_sites')
       .select('organization_id')
       .eq('api_key', apiKey)
-      .eq('active', true)
+      .eq('is_active', true)
       .single()
 
     if (!site) {
@@ -67,7 +67,6 @@ export async function POST(request: Request) {
           last_name: nameParts.slice(1).join(' ') || '',
           phone,
           source: 'voice_agent',
-          status: 'lead',
         })
         .select('id')
         .single()

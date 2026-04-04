@@ -8,13 +8,11 @@ import {
   Bell,
   Plus,
   ChevronRight,
-  User,
   Settings,
   LogOut,
   UserPlus,
   Handshake,
   Activity,
-  FileDown,
   Command,
 } from 'lucide-react'
 import Avatar from '@/components/shared/Avatar'
