@@ -3,6 +3,9 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Globe, Phone, MapPin } from 'lucide-react'
 import Avatar from '@/components/shared/Avatar'
+import FileAttachments from '@/components/shared/FileAttachments'
+import NotesPanel from '@/components/shared/NotesPanel'
+import CustomFieldsRenderer from '@/components/shared/CustomFieldsRenderer'
 import { formatDate, formatCurrency } from '@/lib/utils'
 
 export default async function CompanyDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -113,6 +116,22 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
               </div>
             )}
           </div>
+
+          <FileAttachments entityType="company" entityId={id} orgId={company.organization_id} />
+
+          {/* Notes */}
+          <div className="card">
+            <h3 className="text-sm font-semibold mb-4" style={{ color: 'var(--muted)' }}>Notes</h3>
+            <NotesPanel entityType="company" entityId={id} />
+          </div>
+        </div>
+      </div>
+
+      {/* Custom Fields */}
+      <div className="mt-6 max-w-md">
+        <div className="card">
+          <h3 className="text-sm font-semibold mb-4" style={{ color: 'var(--muted)' }}>Custom Fields</h3>
+          <CustomFieldsRenderer entityType="company" entityId={id} />
         </div>
       </div>
     </div>

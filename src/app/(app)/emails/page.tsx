@@ -18,16 +18,9 @@ export default function EmailsPage() {
   }, [])
 
   async function loadTemplates() {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-    const { data: profile } = await supabase
-      .from('profiles').select('organization_id').eq('id', user.id).single()
-    if (!profile) return
-
     const { data } = await supabase
       .from('email_templates')
       .select('*')
-      .eq('organization_id', profile.organization_id)
       .order('updated_at', { ascending: false })
 
     setTemplates(data ?? [])

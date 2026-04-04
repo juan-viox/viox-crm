@@ -38,16 +38,10 @@ export default function ComposeEmailPage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
     setUserId(user.id)
-    const { data: profile } = await supabase
-      .from('profiles').select('organization_id').eq('id', user.id).single()
-    if (!profile) return
-    setOrgId(profile.organization_id)
 
     const [contactsRes, templatesRes] = await Promise.all([
-      supabase.from('contacts').select('*, company:companies(name)')
-        .eq('organization_id', profile.organization_id).order('first_name'),
-      supabase.from('email_templates').select('*')
-        .eq('organization_id', profile.organization_id).order('name'),
+      supabase.from('contacts').select('*, company:companies(name)').order('first_name'),
+      supabase.from('email_templates').select('*').order('name'),
     ])
 
     setContacts(contactsRes.data ?? [])

@@ -40,16 +40,9 @@ export default function AutomationsPage() {
   }, [])
 
   async function loadWorkflows() {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-    const { data: profile } = await supabase
-      .from('profiles').select('organization_id').eq('id', user.id).single()
-    if (!profile) return
-
     const { data } = await supabase
       .from('workflows')
       .select('*')
-      .eq('organization_id', profile.organization_id)
       .order('created_at', { ascending: false })
 
     setWorkflows(data ?? [])

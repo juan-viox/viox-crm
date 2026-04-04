@@ -24,16 +24,9 @@ export default function NewDealPage() {
 
   useEffect(() => {
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const { data: profile } = await supabase
-        .from('profiles').select('organization_id').eq('id', user.id).single()
-      if (!profile) return
-      const orgId = profile.organization_id
-
       const [contactsRes, stagesRes] = await Promise.all([
-        supabase.from('contacts').select('*').eq('organization_id', orgId).order('first_name'),
-        supabase.from('deal_stages').select('*').eq('organization_id', orgId).order('position'),
+        supabase.from('contacts').select('*').order('first_name'),
+        supabase.from('deal_stages').select('*').order('position'),
       ])
       setContacts(contactsRes.data ?? [])
       setStages(stagesRes.data ?? [])
@@ -49,17 +42,9 @@ export default function NewDealPage() {
     setLoading(true)
     setError('')
 
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { setError('Not authenticated'); setLoading(false); return }
-
-    const { data: profile } = await supabase
-      .from('profiles').select('organization_id').eq('id', user.id).single()
-    if (!profile) { setError('No profile found'); setLoading(false); return }
-
     const selectedContact = contacts.find(c => c.id === contactId)
 
     const { error: insertError } = await supabase.from('deals').insert({
-      organization_id: profile.organization_id,
       title,
       amount: parseFloat(amount) || 0,
       stage_id: stageId,

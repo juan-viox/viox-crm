@@ -4,6 +4,9 @@ import Link from 'next/link'
 import { ArrowLeft, DollarSign, Calendar, User, Building2 } from 'lucide-react'
 import Avatar from '@/components/shared/Avatar'
 import ContactTimeline from '@/components/contacts/ContactTimeline'
+import FileAttachments from '@/components/shared/FileAttachments'
+import NotesPanel from '@/components/shared/NotesPanel'
+import CustomFieldsRenderer from '@/components/shared/CustomFieldsRenderer'
 import { formatCurrency, formatDate } from '@/lib/utils'
 
 export default async function DealDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -104,11 +107,27 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
           </div>
         </div>
 
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 space-y-6">
           <div className="card">
             <h3 className="text-sm font-semibold mb-4" style={{ color: 'var(--muted)' }}>Activity</h3>
             <ContactTimeline activities={activities ?? []} />
           </div>
+
+          <FileAttachments entityType="deal" entityId={id} orgId={deal.organization_id} />
+
+          {/* Notes */}
+          <div className="card">
+            <h3 className="text-sm font-semibold mb-4" style={{ color: 'var(--muted)' }}>Notes</h3>
+            <NotesPanel entityType="deal" entityId={id} />
+          </div>
+        </div>
+      </div>
+
+      {/* Custom Fields */}
+      <div className="mt-6 max-w-md">
+        <div className="card">
+          <h3 className="text-sm font-semibold mb-4" style={{ color: 'var(--muted)' }}>Custom Fields</h3>
+          <CustomFieldsRenderer entityType="deal" entityId={id} />
         </div>
       </div>
     </div>

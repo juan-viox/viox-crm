@@ -6,11 +6,9 @@ import { Loader2, Save, X } from 'lucide-react'
 import type { Contact, Deal } from '@/types'
 
 export default function ActivityForm({
-  orgId,
   onCreated,
   onCancel,
 }: {
-  orgId: string
   onCreated: (activity: any) => void
   onCancel: () => void
 }) {
@@ -29,14 +27,14 @@ export default function ActivityForm({
   useEffect(() => {
     async function load() {
       const [contactsRes, dealsRes] = await Promise.all([
-        supabase.from('contacts').select('*').eq('organization_id', orgId).order('first_name'),
-        supabase.from('deals').select('*').eq('organization_id', orgId).eq('status', 'open').order('title'),
+        supabase.from('contacts').select('*').order('first_name'),
+        supabase.from('deals').select('*').eq('status', 'open').order('title'),
       ])
       setContacts(contactsRes.data ?? [])
       setDeals(dealsRes.data ?? [])
     }
     load()
-  }, [orgId])
+  }, [])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -49,7 +47,6 @@ export default function ActivityForm({
     const { data, error: insertError } = await supabase
       .from('activities')
       .insert({
-        organization_id: orgId,
         user_id: user.id,
         type,
         title,

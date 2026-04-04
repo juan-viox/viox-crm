@@ -7,20 +7,10 @@ import { Plus } from 'lucide-react'
 
 export default async function ContactsPage() {
   const supabase = await createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('organization_id')
-    .eq('id', user!.id)
-    .single()
-
-  const orgId = profile?.organization_id
 
   const { data: contacts } = await supabase
     .from('contacts')
     .select('*, company:companies(name)')
-    .eq('organization_id', orgId)
     .order('created_at', { ascending: false })
 
   if (!contacts || contacts.length === 0) {

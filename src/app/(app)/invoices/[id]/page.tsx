@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { ArrowLeft, Send, CheckCircle, XCircle, Loader2, Printer } from 'lucide-react'
+import { ArrowLeft, Send, CheckCircle, XCircle, Loader2, Printer, FileDown, Mail } from 'lucide-react'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import type { Invoice, InvoiceItem } from '@/types'
 
@@ -121,10 +121,37 @@ export default function InvoiceDetailPage() {
             </button>
           )}
           <button
-            onClick={() => window.print()}
+            onClick={() => window.open(`/api/v1/invoices/${params.id}/pdf`, '_blank')}
             className="btn btn-secondary"
           >
-            <Printer className="w-4 h-4" /> Print
+            <FileDown className="w-4 h-4" /> Print Invoice
+          </button>
+          <button
+            onClick={async () => {
+              if (!invoice.contact?.email) {
+                alert('No email address on contact. Activity logged.')
+              }
+              await supabase.from('activities').insert({
+                organization_id: invoice.organization_id,
+                contact_id: invoice.contact_id,
+                type: 'email',
+                title: `Invoice ${invoice.invoice_number} sent`,
+                description: invoice.contact?.email
+                  ? `Invoice emailed to ${invoice.contact.email}`
+                  : 'Invoice send attempted (no email configured)',
+                completed: true,
+                metadata: { invoice_id: invoice.id },
+              })
+              if (invoice.status === 'draft') {
+                await updateStatus('sent')
+              }
+              alert(invoice.contact?.email
+                ? 'Invoice activity logged. Configure email integration to send automatically.'
+                : 'No email on contact. Activity logged.')
+            }}
+            className="btn btn-secondary"
+          >
+            <Mail className="w-4 h-4" /> Send Invoice
           </button>
         </div>
       </div>

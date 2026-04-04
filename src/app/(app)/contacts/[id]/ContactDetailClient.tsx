@@ -14,15 +14,21 @@ import {
   CheckCircle2,
   MessageSquare,
   Activity,
+  FileText,
+  Paperclip,
 } from 'lucide-react'
 import Avatar from '@/components/shared/Avatar'
 import ContactTimeline from '@/components/contacts/ContactTimeline'
+import FileAttachments from '@/components/shared/FileAttachments'
+import NotesPanel from '@/components/shared/NotesPanel'
+import CustomFieldsRenderer from '@/components/shared/CustomFieldsRenderer'
 import { formatDate, formatCurrency } from '@/lib/utils'
 
 const tabs = [
   { key: 'activity', label: 'Activity', icon: Activity },
   { key: 'deals', label: 'Deals', icon: Briefcase },
   { key: 'notes', label: 'Notes', icon: MessageSquare },
+  { key: 'files', label: 'Files', icon: Paperclip },
 ]
 
 const quickActions = [
@@ -36,10 +42,12 @@ export default function ContactDetailClient({
   contact,
   activities,
   deals,
+  orgId,
 }: {
   contact: any
   activities: any[]
   deals: any[]
+  orgId: string
 }) {
   const [activeTab, setActiveTab] = useState('activity')
   const containerRef = useRef<HTMLDivElement>(null)
@@ -247,12 +255,13 @@ export default function ContactDetailClient({
           )}
 
           {activeTab === 'notes' && (
-            <div className="card text-center py-12">
-              <MessageSquare className="w-8 h-8 mx-auto mb-2" style={{ color: 'var(--muted)' }} />
-              <p className="text-sm" style={{ color: 'var(--muted)' }}>
-                Notes feature coming soon
-              </p>
+            <div className="card">
+              <NotesPanel entityType="contact" entityId={contact.id} />
             </div>
+          )}
+
+          {activeTab === 'files' && (
+            <FileAttachments entityType="contact" entityId={contact.id} orgId={orgId} />
           )}
         </div>
 
@@ -325,6 +334,14 @@ export default function ContactDetailClient({
                 Created {formatDate(contact.created_at)}
               </p>
             </div>
+          </div>
+
+          {/* Custom Fields */}
+          <div className="card">
+            <h3 className="text-sm font-semibold mb-4" style={{ color: 'var(--muted)' }}>
+              Custom Fields
+            </h3>
+            <CustomFieldsRenderer entityType="contact" entityId={contact.id} />
           </div>
 
           {/* Stats Summary */}

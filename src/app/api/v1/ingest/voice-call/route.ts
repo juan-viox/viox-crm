@@ -14,24 +14,11 @@ export async function OPTIONS() {
 export async function POST(request: Request) {
   try {
     const apiKey = request.headers.get('x-api-key')
-    if (!apiKey) {
-      return NextResponse.json({ error: 'Missing API key' }, { status: 401, headers: corsHeaders })
-    }
-
-    const supabase = createAdminClient()
-
-    const { data: site } = await supabase
-      .from('cinematic_sites')
-      .select('organization_id')
-      .eq('api_key', apiKey)
-      .eq('is_active', true)
-      .single()
-
-    if (!site) {
+    if (!apiKey || apiKey !== process.env.SITE_API_KEY) {
       return NextResponse.json({ error: 'Invalid API key' }, { status: 401, headers: corsHeaders })
     }
 
-    const orgId = site.organization_id
+    const supabase = createAdminClient()
     const body = await request.json()
     const { phone, callerName, duration, transcript, agentId } = body
 
@@ -43,7 +30,6 @@ export async function POST(request: Request) {
     const { data: existing } = await supabase
       .from('contacts')
       .select('id')
-      .eq('organization_id', orgId)
       .eq('phone', phone)
       .single()
 
@@ -62,7 +48,6 @@ export async function POST(request: Request) {
       const { data: newContact } = await supabase
         .from('contacts')
         .insert({
-          organization_id: orgId,
           first_name: nameParts[0],
           last_name: nameParts.slice(1).join(' ') || '',
           phone,
@@ -75,7 +60,6 @@ export async function POST(request: Request) {
 
     // Create activity
     await supabase.from('activities').insert({
-      organization_id: orgId,
       contact_id: contactId,
       type: 'voice_agent',
       title: `Voice call${callerName ? ` with ${callerName}` : ''}`,

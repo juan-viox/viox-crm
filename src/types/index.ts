@@ -1,14 +1,5 @@
-export interface Organization {
-  id: string
-  name: string
-  slug: string
-  created_at: string
-  updated_at: string
-}
-
 export interface Profile {
   id: string
-  organization_id: string
   email: string
   full_name: string
   avatar_url?: string
@@ -19,7 +10,6 @@ export interface Profile {
 
 export interface Company {
   id: string
-  organization_id: string
   name: string
   domain?: string
   industry?: string
@@ -36,7 +26,6 @@ export interface Company {
 
 export interface Contact {
   id: string
-  organization_id: string
   company_id?: string
   first_name: string
   last_name: string
@@ -45,6 +34,7 @@ export interface Contact {
   title?: string
   source?: string
   status: 'active' | 'inactive' | 'lead'
+  portal_access?: boolean
   notes?: string
   created_at: string
   updated_at: string
@@ -53,7 +43,6 @@ export interface Contact {
 
 export interface DealStage {
   id: string
-  organization_id: string
   name: string
   position: number
   color: string
@@ -62,7 +51,6 @@ export interface DealStage {
 
 export interface Deal {
   id: string
-  organization_id: string
   contact_id?: string
   company_id?: string
   stage_id: string
@@ -82,7 +70,6 @@ export interface Deal {
 
 export interface Activity {
   id: string
-  organization_id: string
   contact_id?: string
   deal_id?: string
   user_id?: string
@@ -100,7 +87,6 @@ export interface Activity {
 
 export interface Note {
   id: string
-  organization_id: string
   contact_id?: string
   deal_id?: string
   company_id?: string
@@ -112,7 +98,6 @@ export interface Note {
 
 export interface Tag {
   id: string
-  organization_id: string
   name: string
   color?: string
   created_at: string
@@ -125,21 +110,8 @@ export interface EntityTag {
   entity_id: string
 }
 
-export interface CinematicSite {
-  id: string
-  organization_id: string
-  name: string
-  slug: string
-  domain?: string
-  api_key: string
-  active: boolean
-  created_at: string
-  updated_at: string
-}
-
 export interface Document {
   id: string
-  organization_id: string
   contact_id?: string
   deal_id?: string
   company_id?: string
@@ -152,7 +124,6 @@ export interface Document {
 
 export interface EmailTemplate {
   id: string
-  organization_id: string
   name: string
   subject: string
   body: string
@@ -165,7 +136,6 @@ export interface EmailTemplate {
 
 export interface Product {
   id: string
-  organization_id: string
   name: string
   description?: string
   price: number
@@ -176,7 +146,6 @@ export interface Product {
 
 export interface Invoice {
   id: string
-  organization_id: string
   contact_id?: string
   deal_id?: string
   invoice_number: string
@@ -218,7 +187,6 @@ export interface WorkflowAction {
 
 export interface Workflow {
   id: string
-  organization_id: string
   name: string
   description?: string
   trigger_type: WorkflowTrigger

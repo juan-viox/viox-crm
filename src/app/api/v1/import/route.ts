@@ -3,9 +3,9 @@ import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function POST(request: Request) {
   try {
-    const { entityType, records, orgId } = await request.json()
+    const { entityType, records } = await request.json()
 
-    if (!entityType || !records || !orgId) {
+    if (!entityType || !records) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
@@ -15,19 +15,13 @@ export async function POST(request: Request) {
 
     const supabase = createAdminClient()
 
-    // Add organization_id to all records
-    const withOrg = records.map((r: Record<string, unknown>) => ({
-      ...r,
-      organization_id: orgId,
-    }))
-
     // Insert in batches
     const batchSize = 100
     let imported = 0
     let errors = 0
 
-    for (let i = 0; i < withOrg.length; i += batchSize) {
-      const batch = withOrg.slice(i, i + batchSize)
+    for (let i = 0; i < records.length; i += batchSize) {
+      const batch = records.slice(i, i + batchSize)
       const { error } = await supabase.from(entityType).insert(batch)
 
       if (error) {

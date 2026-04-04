@@ -47,10 +47,8 @@ const statusConfig: Record<string, { bg: string; color: string }> = {
 
 export default function LeadsClient({
   leads,
-  orgId,
 }: {
   leads: Contact[]
-  orgId: string
 }) {
   const [search, setSearch] = useState('')
   const [sourceFilter, setSourceFilter] = useState<string>('all')

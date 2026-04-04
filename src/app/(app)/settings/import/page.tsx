@@ -55,14 +55,7 @@ export default function ImportPage() {
   const supabase = createClient()
 
   useEffect(() => {
-    async function loadOrg() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const { data: profile } = await supabase
-        .from('profiles').select('organization_id').eq('id', user.id).single()
-      if (profile) setOrgId(profile.organization_id)
-    }
-    loadOrg()
+    // No org ID needed in standalone mode
   }, [])
 
   function parseCSV(text: string) {
@@ -150,7 +143,7 @@ export default function ImportPage() {
     for (let i = 0; i < totalRows; i += batchSize) {
       const batch = rows.slice(i, i + batchSize)
       const records = batch.map(row => {
-        const record: Record<string, unknown> = { organization_id: orgId }
+        const record: Record<string, unknown> = {}
         for (const [csvHeader, dbField] of Object.entries(mapping)) {
           const idx = headers.indexOf(csvHeader)
           if (idx >= 0 && row[idx]) {

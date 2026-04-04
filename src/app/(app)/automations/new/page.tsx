@@ -52,16 +52,9 @@ export default function NewWorkflowPage() {
   }, [])
 
   async function loadData() {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-    const { data: profile } = await supabase
-      .from('profiles').select('organization_id').eq('id', user.id).single()
-    if (!profile) return
-    setOrgId(profile.organization_id)
-
     const [templatesRes, stagesRes] = await Promise.all([
-      supabase.from('email_templates').select('*').eq('organization_id', profile.organization_id),
-      supabase.from('deal_stages').select('*').eq('organization_id', profile.organization_id).order('position'),
+      supabase.from('email_templates').select('*'),
+      supabase.from('deal_stages').select('*').order('position'),
     ])
 
     setTemplates(templatesRes.data ?? [])
@@ -130,7 +123,6 @@ export default function NewWorkflowPage() {
     const { error: insertError } = await supabase
       .from('workflows')
       .insert({
-        organization_id: orgId,
         name,
         description: description || null,
         trigger_type: triggerType,

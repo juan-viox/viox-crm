@@ -3,9 +3,9 @@ import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function POST(request: Request) {
   try {
-    const { to, subject, body, contactId, orgId, userId } = await request.json()
+    const { to, subject, body, contactId, userId } = await request.json()
 
-    if (!to || !subject || !body || !orgId) {
+    if (!to || !subject || !body) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
@@ -44,7 +44,6 @@ export async function POST(request: Request) {
 
     // Log email as activity regardless of send status
     await supabase.from('activities').insert({
-      organization_id: orgId,
       contact_id: contactId || null,
       user_id: userId || null,
       type: 'email',

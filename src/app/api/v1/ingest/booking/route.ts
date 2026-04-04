@@ -14,24 +14,11 @@ export async function OPTIONS() {
 export async function POST(request: Request) {
   try {
     const apiKey = request.headers.get('x-api-key')
-    if (!apiKey) {
-      return NextResponse.json({ error: 'Missing API key' }, { status: 401, headers: corsHeaders })
-    }
-
-    const supabase = createAdminClient()
-
-    const { data: site } = await supabase
-      .from('cinematic_sites')
-      .select('organization_id')
-      .eq('api_key', apiKey)
-      .eq('is_active', true)
-      .single()
-
-    if (!site) {
+    if (!apiKey || apiKey !== process.env.SITE_API_KEY) {
       return NextResponse.json({ error: 'Invalid API key' }, { status: 401, headers: corsHeaders })
     }
 
-    const orgId = site.organization_id
+    const supabase = createAdminClient()
     const body = await request.json()
     const { firstName, lastName, email, phone, service, date, notes } = body
 
@@ -41,7 +28,6 @@ export async function POST(request: Request) {
       const { data: existing } = await supabase
         .from('contacts')
         .select('id')
-        .eq('organization_id', orgId)
         .eq('email', email)
         .single()
 
@@ -56,7 +42,6 @@ export async function POST(request: Request) {
         const { data: newContact } = await supabase
           .from('contacts')
           .insert({
-            organization_id: orgId,
             first_name: firstName || 'Unknown',
             last_name: lastName || '',
             email,
@@ -71,7 +56,6 @@ export async function POST(request: Request) {
       const { data: newContact } = await supabase
         .from('contacts')
         .insert({
-          organization_id: orgId,
           first_name: firstName || 'Unknown',
           last_name: lastName || '',
           phone: phone || null,
@@ -86,14 +70,12 @@ export async function POST(request: Request) {
     const { data: firstStage } = await supabase
       .from('deal_stages')
       .select('id')
-      .eq('organization_id', orgId)
       .order('position')
       .limit(1)
       .single()
 
     if (firstStage) {
       await supabase.from('deals').insert({
-        organization_id: orgId,
         contact_id: contactId,
         stage_id: firstStage.id,
         title: `Booking: ${service || 'Service'} - ${firstName || ''} ${lastName || ''}`.trim(),
@@ -105,7 +87,6 @@ export async function POST(request: Request) {
 
     // Create meeting activity
     await supabase.from('activities').insert({
-      organization_id: orgId,
       contact_id: contactId,
       type: 'meeting',
       title: `Booking: ${service || 'Service'}`,

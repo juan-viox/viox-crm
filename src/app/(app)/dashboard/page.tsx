@@ -8,35 +8,30 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('organization_id, full_name')
+    .select('full_name')
     .eq('id', user!.id)
     .single()
 
-  const orgId = profile?.organization_id
   const firstName = profile?.full_name?.split(' ')[0] ?? 'there'
 
   // Fetch all stats in parallel
   const [contactsRes, dealsRes, wonDealsRes, activitiesRes, recentActivitiesRes, stagesRes, upcomingRes] = await Promise.all([
-    supabase.from('contacts').select('id', { count: 'exact', head: true }).eq('organization_id', orgId),
-    supabase.from('deals').select('id, amount').eq('organization_id', orgId).eq('status', 'open'),
-    supabase.from('deals').select('amount, created_at').eq('organization_id', orgId).eq('status', 'won'),
+    supabase.from('contacts').select('id', { count: 'exact', head: true }),
+    supabase.from('deals').select('id, amount').eq('status', 'open'),
+    supabase.from('deals').select('amount, created_at').eq('status', 'won'),
     supabase.from('activities')
       .select('id', { count: 'exact', head: true })
-      .eq('organization_id', orgId)
       .eq('completed', false)
       .lte('due_date', new Date().toISOString().split('T')[0] + 'T23:59:59'),
     supabase.from('activities')
       .select('*, contact:contacts(first_name, last_name)')
-      .eq('organization_id', orgId)
       .order('created_at', { ascending: false })
       .limit(10),
     supabase.from('deal_stages')
       .select('id, name, color, position')
-      .eq('organization_id', orgId)
       .order('position'),
     supabase.from('activities')
       .select('id, title, type, due_date, completed')
-      .eq('organization_id', orgId)
       .eq('completed', false)
       .gte('due_date', new Date().toISOString().split('T')[0])
       .order('due_date', { ascending: true })
@@ -74,7 +69,6 @@ export default async function DashboardPage() {
   const { data: contactsBySource } = await supabase
     .from('contacts')
     .select('source')
-    .eq('organization_id', orgId)
 
   const sourceCounts: Record<string, number> = {}
   ;(contactsBySource ?? []).forEach(c => {
@@ -84,21 +78,10 @@ export default async function DashboardPage() {
 
   const leadSources = Object.entries(sourceCounts).map(([name, value]) => ({ name, value }))
 
-  // Pipeline snapshot: count deals per stage
-  const pipelineSnapshot = stages.map(stage => {
-    const stageDeals = openDeals.filter(d => (d as any).stage_id === stage.id)
-    return {
-      name: stage.name,
-      color: stage.color,
-      count: stageDeals.length,
-    }
-  })
-
-  // For pipeline snapshot we need stage_id on deals
+  // Pipeline snapshot
   const { data: dealsWithStages } = await supabase
     .from('deals')
     .select('stage_id, amount')
-    .eq('organization_id', orgId)
     .eq('status', 'open')
 
   const pipelineData = stages.map(stage => {

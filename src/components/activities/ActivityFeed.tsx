@@ -27,10 +27,8 @@ const typeFilters = ['all', 'call', 'email', 'meeting', 'task', 'note', 'voice_a
 
 export default function ActivityFeed({
   activities: initialActivities,
-  orgId,
 }: {
   activities: any[]
-  orgId: string
 }) {
   const [filter, setFilter] = useState('all')
   const [showForm, setShowForm] = useState(false)
@@ -69,7 +67,6 @@ export default function ActivityFeed({
       {showForm && (
         <div className="mb-6 animate-slide-in-up">
           <ActivityForm
-            orgId={orgId}
             onCreated={(activity) => {
               setActivities(prev => [activity, ...prev])
               setShowForm(false)

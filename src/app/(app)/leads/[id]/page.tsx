@@ -32,16 +32,9 @@ export default async function LeadDetailPage({
     .limit(1)
 
   // Get first pipeline stage for conversion
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('organization_id')
-    .eq('id', (await supabase.auth.getUser()).data.user!.id)
-    .single()
-
   const { data: firstStage } = await supabase
     .from('deal_stages')
     .select('id, name')
-    .eq('organization_id', profile?.organization_id)
     .order('position', { ascending: true })
     .limit(1)
     .single()
@@ -53,7 +46,6 @@ export default async function LeadDetailPage({
       hasDeal={(deals ?? []).length > 0}
       firstStageId={firstStage?.id ?? null}
       firstStageName={firstStage?.name ?? null}
-      orgId={profile?.organization_id ?? ''}
     />
   )
 }

@@ -24,17 +24,9 @@ export default function PipelineSettingsPage() {
 
   useEffect(() => {
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const { data: profile } = await supabase
-        .from('profiles').select('organization_id').eq('id', user.id).single()
-      if (!profile) return
-      setOrgId(profile.organization_id)
-
       const { data } = await supabase
         .from('deal_stages')
         .select('*')
-        .eq('organization_id', profile.organization_id)
         .order('position')
 
       setStages((data ?? []).map(s => ({
@@ -75,7 +67,7 @@ export default function PipelineSettingsPage() {
       // Delete removed stages
       const existingIds = stages.filter(s => s.id).map(s => s.id!)
       const { data: currentStages } = await supabase
-        .from('deal_stages').select('id').eq('organization_id', orgId)
+        .from('deal_stages').select('id')
       const toDelete = (currentStages ?? []).filter(s => !existingIds.includes(s.id))
       for (const s of toDelete) {
         await supabase.from('deal_stages').delete().eq('id', s.id)
@@ -91,7 +83,6 @@ export default function PipelineSettingsPage() {
           }).eq('id', stage.id)
         } else {
           await supabase.from('deal_stages').insert({
-            organization_id: orgId,
             name: stage.name,
             color: stage.color,
             position: stage.position,
@@ -101,7 +92,7 @@ export default function PipelineSettingsPage() {
 
       // Reload
       const { data } = await supabase
-        .from('deal_stages').select('*').eq('organization_id', orgId).order('position')
+        .from('deal_stages').select('*').order('position')
       setStages((data ?? []).map(s => ({ id: s.id, name: s.name, color: s.color, position: s.position })))
 
       setSaved(true)

@@ -1,20 +1,15 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { Plus, Globe, Copy, ExternalLink } from 'lucide-react'
+import { Plus, Globe } from 'lucide-react'
 import EmptyState from '@/components/shared/EmptyState'
 import SitesClient from './SitesClient'
 
 export default async function SitesPage() {
   const supabase = await createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  const { data: profile } = await supabase
-    .from('profiles').select('organization_id').eq('id', user!.id).single()
 
   const { data: sites } = await supabase
     .from('cinematic_sites')
     .select('*')
-    .eq('organization_id', profile?.organization_id)
     .order('created_at', { ascending: false })
 
   return (

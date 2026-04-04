@@ -32,7 +32,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Workflow is inactive' }, { status: 400 })
     }
 
-    const orgId = workflow.organization_id
     const actions = workflow.actions as WorkflowAction[]
     const results: { action: string; status: string; error?: string }[] = []
 
@@ -52,7 +51,6 @@ export async function POST(request: Request) {
               if (template && triggerData?.contact_email) {
                 // Log as activity
                 await supabase.from('activities').insert({
-                  organization_id: orgId,
                   contact_id: triggerData?.contact_id ?? null,
                   type: 'email',
                   title: `Auto: ${template.subject}`,
@@ -72,7 +70,6 @@ export async function POST(request: Request) {
 
           case 'create_activity': {
             await supabase.from('activities').insert({
-              organization_id: orgId,
               contact_id: triggerData?.contact_id ?? null,
               deal_id: triggerData?.deal_id ?? null,
               type: (action.config.type as string) ?? 'task',
@@ -93,7 +90,6 @@ export async function POST(request: Request) {
               const { data: existingTag } = await supabase
                 .from('tags')
                 .select('id')
-                .eq('organization_id', orgId)
                 .eq('name', tagName)
                 .single()
 
@@ -102,7 +98,7 @@ export async function POST(request: Request) {
               } else {
                 const { data: newTag } = await supabase
                   .from('tags')
-                  .insert({ organization_id: orgId, name: tagName })
+                  .insert({ name: tagName })
                   .select('id')
                   .single()
                 tagId = newTag!.id
@@ -124,7 +120,6 @@ export async function POST(request: Request) {
             const message = action.config.message as string
             if (message) {
               await supabase.from('activities').insert({
-                organization_id: orgId,
                 type: 'note',
                 title: `Notification: ${message}`,
                 description: `Automated notification from workflow "${workflow.name}"`,

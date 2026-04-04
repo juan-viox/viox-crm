@@ -25,13 +25,8 @@ export default function NewContactPage() {
 
   useEffect(() => {
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const { data: profile } = await supabase
-        .from('profiles').select('organization_id').eq('id', user.id).single()
-      if (!profile) return
       const { data } = await supabase
-        .from('companies').select('*').eq('organization_id', profile.organization_id).order('name')
+        .from('companies').select('*').order('name')
       setCompanies(data ?? [])
     }
     load()
@@ -42,15 +37,7 @@ export default function NewContactPage() {
     setLoading(true)
     setError('')
 
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { setError('Not authenticated'); setLoading(false); return }
-
-    const { data: profile } = await supabase
-      .from('profiles').select('organization_id').eq('id', user.id).single()
-    if (!profile) { setError('No profile found'); setLoading(false); return }
-
     const { error: insertError } = await supabase.from('contacts').insert({
-      organization_id: profile.organization_id,
       first_name: firstName,
       last_name: lastName,
       email: email || null,

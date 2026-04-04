@@ -1,45 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { LogIn, Mail, Lock, Loader2 } from 'lucide-react'
-
-interface OrgBranding {
-  name: string
-  slug: string
-  primary_color: string
-  accent_color: string
-  logo_url: string | null
-  tagline: string | null
-}
-
-/**
- * Extract org slug from the current hostname (client-side).
- * Returns null for root domain, localhost, or vercel URLs.
- */
-function getClientOrgSlug(): string | null {
-  if (typeof window === 'undefined') return null
-  const hostname = window.location.hostname
-
-  // Local dev: check URL search params
-  const params = new URLSearchParams(window.location.search)
-  if (params.has('org')) return params.get('org')
-
-  // Localhost — no subdomain
-  if (hostname === 'localhost' || hostname === '127.0.0.1') return null
-
-  // Vercel default
-  if (hostname.endsWith('.vercel.app')) return null
-
-  const parts = hostname.split('.')
-  if (parts.length >= 4 && parts.slice(-3).join('.') === 'crm.viox.ai') {
-    return parts[0]
-  }
-
-  return null
-}
+import crmConfig from '@/crm.config'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -47,22 +13,11 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [magicLinkSent, setMagicLinkSent] = useState(false)
   const [error, setError] = useState('')
-  const [orgBranding, setOrgBranding] = useState<OrgBranding | null>(null)
   const router = useRouter()
   const supabase = createClient()
 
-  // Fetch org branding from subdomain
-  useEffect(() => {
-    const slug = getClientOrgSlug()
-    if (!slug || slug === 'admin') return
-
-    fetch(`/api/v1/branding/${slug}`)
-      .then(res => res.ok ? res.json() : null)
-      .then(data => { if (data) setOrgBranding(data) })
-      .catch(() => {})
-  }, [])
-
-  const isAdmin = typeof window !== 'undefined' && getClientOrgSlug() === 'admin'
+  const branding = crmConfig.branding
+  const accentColor = branding.primaryColor
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
@@ -96,9 +51,6 @@ export default function LoginPage() {
     setLoading(false)
   }
 
-  // Branding-aware accent color
-  const accentColor = orgBranding?.primary_color || 'var(--accent)'
-
   if (magicLinkSent) {
     return (
       <div className="card text-center animate-fade-in">
@@ -112,39 +64,25 @@ export default function LoginPage() {
     )
   }
 
-  // Determine title and subtitle based on context
-  const title = orgBranding
-    ? orgBranding.name
-    : isAdmin
-      ? 'VioX Admin'
-      : 'VioX'
-  const subtitle = orgBranding
-    ? orgBranding.tagline || 'Sign in to your account'
-    : isAdmin
-      ? 'Super Admin Login'
-      : 'Sign in to your account'
-
   return (
     <div className="animate-fade-in">
       <div className="text-center mb-8">
-        {/* Org logo or default heading */}
-        {orgBranding?.logo_url ? (
+        {branding.logoUrl ? (
           <div className="flex flex-col items-center gap-3 mb-4">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={orgBranding.logo_url}
-              alt={orgBranding.name}
+              src={branding.logoUrl}
+              alt={crmConfig.name}
               className="w-16 h-16 rounded-xl object-cover"
             />
-            <h1 className="text-2xl font-bold">{title}</h1>
+            <h1 className="text-2xl font-bold">{crmConfig.name}</h1>
           </div>
         ) : (
           <h1 className="text-3xl font-bold mb-2">
-            <span style={{ color: accentColor }}>{title}</span>
-            {!orgBranding && !isAdmin && ' CRM'}
+            <span style={{ color: accentColor }}>{crmConfig.name}</span>
           </h1>
         )}
-        <p style={{ color: 'var(--muted)' }}>{subtitle}</p>
+        <p style={{ color: 'var(--muted)' }}>Sign in to your account</p>
       </div>
 
       <div className="card">
@@ -191,7 +129,7 @@ export default function LoginPage() {
             type="submit"
             disabled={loading}
             className="btn btn-primary w-full justify-center"
-            style={orgBranding ? { background: orgBranding.primary_color } : undefined}
+            style={{ background: branding.primaryColor }}
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <LogIn className="w-4 h-4" />}
             Sign In
@@ -218,17 +156,14 @@ export default function LoginPage() {
 
         <p className="text-center text-sm mt-6" style={{ color: 'var(--muted)' }}>
           Don&apos;t have an account?{' '}
-          <Link href="/signup" style={{ color: orgBranding?.primary_color || 'var(--accent-light)' }} className="hover:underline">
+          <Link href="/signup" style={{ color: branding.accentColor }} className="hover:underline">
             Sign up
           </Link>
         </p>
 
-        {/* Powered by VioX AI — only on org subdomains */}
-        {orgBranding && (
-          <p className="text-center text-[10px] mt-4" style={{ color: 'var(--muted)', opacity: 0.5 }}>
-            Powered by VioX AI
-          </p>
-        )}
+        <p className="text-center text-[10px] mt-4" style={{ color: 'var(--muted)', opacity: 0.5 }}>
+          Powered by VioX AI
+        </p>
       </div>
     </div>
   )

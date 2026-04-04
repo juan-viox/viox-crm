@@ -14,24 +14,11 @@ export async function OPTIONS() {
 export async function POST(request: Request) {
   try {
     const apiKey = request.headers.get('x-api-key')
-    if (!apiKey) {
-      return NextResponse.json({ error: 'Missing API key' }, { status: 401, headers: corsHeaders })
-    }
-
-    const supabase = createAdminClient()
-
-    const { data: site } = await supabase
-      .from('cinematic_sites')
-      .select('organization_id')
-      .eq('api_key', apiKey)
-      .eq('is_active', true)
-      .single()
-
-    if (!site) {
+    if (!apiKey || apiKey !== process.env.SITE_API_KEY) {
       return NextResponse.json({ error: 'Invalid API key' }, { status: 401, headers: corsHeaders })
     }
 
-    const orgId = site.organization_id
+    const supabase = createAdminClient()
     const body = await request.json()
     const { email, firstName } = body
 
@@ -43,7 +30,6 @@ export async function POST(request: Request) {
     const { data: existing } = await supabase
       .from('contacts')
       .select('id')
-      .eq('organization_id', orgId)
       .eq('email', email)
       .single()
 
@@ -57,7 +43,6 @@ export async function POST(request: Request) {
       const { data: newContact } = await supabase
         .from('contacts')
         .insert({
-          organization_id: orgId,
           first_name: firstName || email.split('@')[0],
           last_name: '',
           email,
@@ -72,21 +57,19 @@ export async function POST(request: Request) {
     let { data: tag } = await supabase
       .from('tags')
       .select('id')
-      .eq('organization_id', orgId)
       .eq('name', 'newsletter')
       .single()
 
     if (!tag) {
       const { data: newTag } = await supabase
         .from('tags')
-        .insert({ organization_id: orgId, name: 'newsletter', color: '#fdcb6e' })
+        .insert({ name: 'newsletter', color: '#fdcb6e' })
         .select('id')
         .single()
       tag = newTag
     }
 
     if (tag) {
-      // Check if tag already exists
       const { data: existingTag } = await supabase
         .from('entity_tags')
         .select('id')

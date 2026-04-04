@@ -76,12 +76,10 @@ export default function CalendarClient({
   activities: initialActivities,
   contacts,
   deals,
-  orgId,
 }: {
   activities: CalendarActivity[]
   contacts: { id: string; first_name: string; last_name: string }[]
   deals: { id: string; title: string }[]
-  orgId: string
 }) {
   const now = new Date()
   const [currentYear, setCurrentYear] = useState(now.getFullYear())
@@ -183,7 +181,6 @@ export default function CalendarClient({
     const { data, error } = await supabase
       .from('activities')
       .insert({
-        organization_id: orgId,
         user_id: user.id,
         type: formType,
         title: formTitle,

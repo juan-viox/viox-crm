@@ -6,21 +6,10 @@ import LeadsClient from './LeadsClient'
 
 export default async function LeadsPage() {
   const supabase = await createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('organization_id')
-    .eq('id', user!.id)
-    .single()
-
-  const orgId = profile?.organization_id
-
-  // Leads = contacts that have status 'lead' or don't have any deals
   const { data: contacts } = await supabase
     .from('contacts')
     .select('*, company:companies(name)')
-    .eq('organization_id', orgId)
     .eq('status', 'lead')
     .order('created_at', { ascending: false })
 
@@ -47,7 +36,7 @@ export default async function LeadsPage() {
           actionHref="/leads/new"
         />
       ) : (
-        <LeadsClient leads={contacts} orgId={orgId!} />
+        <LeadsClient leads={contacts} />
       )}
     </div>
   )

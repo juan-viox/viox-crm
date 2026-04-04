@@ -29,17 +29,9 @@ export default function ProductsPage() {
   }, [])
 
   async function loadProducts() {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-    const { data: profile } = await supabase
-      .from('profiles').select('organization_id').eq('id', user.id).single()
-    if (!profile) return
-    setOrgId(profile.organization_id)
-
     const { data } = await supabase
       .from('products')
       .select('*')
-      .eq('organization_id', profile.organization_id)
       .order('name')
 
     setProducts(data ?? [])
@@ -80,7 +72,7 @@ export default function ProductsPage() {
     } else {
       const { error: insertError } = await supabase
         .from('products')
-        .insert({ organization_id: orgId, name, description: description || null, price, unit })
+        .insert({ name, description: description || null, price, unit })
 
       if (insertError) { setError(insertError.message); setSaving(false); return }
     }

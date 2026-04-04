@@ -36,15 +36,10 @@ export default function EmailTemplatesPage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
     setUserId(user.id)
-    const { data: profile } = await supabase
-      .from('profiles').select('organization_id').eq('id', user.id).single()
-    if (!profile) return
-    setOrgId(profile.organization_id)
 
     const { data } = await supabase
       .from('email_templates')
       .select('*')
-      .eq('organization_id', profile.organization_id)
       .order('updated_at', { ascending: false })
 
     setTemplates(data ?? [])
@@ -110,7 +105,6 @@ export default function EmailTemplatesPage() {
       const { error: insertError } = await supabase
         .from('email_templates')
         .insert({
-          organization_id: orgId,
           name, subject, body, category,
           variables: allVars,
           created_by: userId,

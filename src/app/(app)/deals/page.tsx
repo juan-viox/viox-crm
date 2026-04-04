@@ -5,17 +5,11 @@ import { Plus } from 'lucide-react'
 
 export default async function DealsPage() {
   const supabase = await createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  const { data: profile } = await supabase
-    .from('profiles').select('organization_id').eq('id', user!.id).single()
-
-  const orgId = profile?.organization_id
 
   const [stagesRes, dealsRes] = await Promise.all([
-    supabase.from('deal_stages').select('*').eq('organization_id', orgId).order('position'),
+    supabase.from('deal_stages').select('*').order('position'),
     supabase.from('deals').select('*, contact:contacts(first_name, last_name), stage:deal_stages(name, color)')
-      .eq('organization_id', orgId).eq('status', 'open').order('created_at', { ascending: false }),
+      .eq('status', 'open').order('created_at', { ascending: false }),
   ])
 
   return (

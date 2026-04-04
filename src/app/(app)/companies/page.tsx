@@ -7,17 +7,10 @@ import CompanyExportButton from '@/components/companies/CompanyExportButton'
 
 export default async function CompaniesPage() {
   const supabase = await createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  const { data: profile } = await supabase
-    .from('profiles').select('organization_id').eq('id', user!.id).single()
-
-  const orgId = profile?.organization_id
 
   const { data: companies } = await supabase
     .from('companies')
     .select('*, contacts:contacts(count)')
-    .eq('organization_id', orgId)
     .order('name')
 
   return (

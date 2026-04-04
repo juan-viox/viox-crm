@@ -18,6 +18,8 @@ export default async function ContactDetailPage({
 
   if (!contact) notFound()
 
+  const orgId = contact.organization_id as string
+
   const { data: activities } = await supabase
     .from('activities')
     .select('*')
@@ -35,6 +37,7 @@ export default async function ContactDetailPage({
       contact={contact}
       activities={activities ?? []}
       deals={deals ?? []}
+      orgId={orgId}
     />
   )
 }

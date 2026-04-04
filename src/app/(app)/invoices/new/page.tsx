@@ -44,17 +44,10 @@ export default function NewInvoicePage() {
   }, [])
 
   async function loadData() {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-    const { data: profile } = await supabase
-      .from('profiles').select('organization_id').eq('id', user.id).single()
-    if (!profile) return
-    setOrgId(profile.organization_id)
-
     const [contactsRes, productsRes, invoiceCountRes] = await Promise.all([
-      supabase.from('contacts').select('*').eq('organization_id', profile.organization_id).order('first_name'),
-      supabase.from('products').select('*').eq('organization_id', profile.organization_id).eq('is_active', true).order('name'),
-      supabase.from('invoices').select('id', { count: 'exact', head: true }).eq('organization_id', profile.organization_id),
+      supabase.from('contacts').select('*').order('first_name'),
+      supabase.from('products').select('*').eq('is_active', true).order('name'),
+      supabase.from('invoices').select('id', { count: 'exact', head: true }),
     ])
 
     setContacts(contactsRes.data ?? [])
@@ -118,7 +111,6 @@ export default function NewInvoicePage() {
     const { data: invoice, error: invError } = await supabase
       .from('invoices')
       .insert({
-        organization_id: orgId,
         contact_id: contactId || null,
         invoice_number: invoiceNumber,
         issue_date: issueDate,

@@ -29,14 +29,12 @@ export default function LeadDetailClient({
   hasDeal,
   firstStageId,
   firstStageName,
-  orgId,
 }: {
   contact: any
   activities: any[]
   hasDeal: boolean
   firstStageId: string | null
   firstStageName: string | null
-  orgId: string
 }) {
   const [converting, setConverting] = useState(false)
   const [converted, setConverted] = useState(hasDeal)
@@ -63,7 +61,6 @@ export default function LeadDetailClient({
       const { data: deal, error } = await supabase
         .from('deals')
         .insert({
-          organization_id: orgId,
           contact_id: contact.id,
           company_id: contact.company_id || null,
           stage_id: firstStageId,

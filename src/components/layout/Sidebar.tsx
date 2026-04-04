@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import crmConfig from '@/crm.config'
 import {
   LayoutDashboard,
   Users,
@@ -20,16 +21,12 @@ import {
   UserPlus,
   CalendarDays,
   Zap,
+  SlidersHorizontal,
+  CheckSquare,
+  BarChart3,
+  UsersRound,
 } from 'lucide-react'
 import Avatar from '@/components/shared/Avatar'
-
-export interface OrgBrandingProps {
-  name: string
-  slug: string
-  primaryColor: string
-  accentColor: string
-  logoUrl: string | null
-}
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -38,7 +35,10 @@ const navItems = [
   { href: '/companies', label: 'Companies', icon: Building2 },
   { href: '/deals', label: 'Pipeline', icon: Kanban },
   { href: '/activities', label: 'Activities', icon: Activity },
+  { href: '/tasks', label: 'Tasks', icon: CheckSquare },
   { href: '/calendar', label: 'Calendar', icon: CalendarDays },
+  { href: '/automations', label: 'Automations', icon: Zap },
+  { href: '/reports', label: 'Reports', icon: BarChart3 },
   { href: '/sites', label: 'Sites', icon: Globe },
 ]
 
@@ -47,23 +47,25 @@ const settingsItems = [
   { href: '/settings/pipeline', label: 'Pipeline', icon: Kanban },
   { href: '/settings/ai-providers', label: 'AI Providers', icon: Bot },
   { href: '/settings/integrations', label: 'Integrations', icon: Plug },
+  { href: '/settings/team', label: 'Team', icon: UsersRound },
+  { href: '/settings/custom-fields', label: 'Custom Fields', icon: SlidersHorizontal },
 ]
 
 export default function Sidebar({
   orgName,
   userName,
   userRole,
-  orgBranding,
 }: {
   orgName: string
   userName?: string
   userRole?: string
-  orgBranding?: OrgBrandingProps | null
 }) {
   const [collapsed, setCollapsed] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
+
+  const branding = crmConfig.branding
 
   async function handleLogout() {
     await supabase.auth.signOut()
@@ -71,13 +73,8 @@ export default function Sidebar({
     router.refresh()
   }
 
-  // Derive branding-aware styles
-  const accentBg = orgBranding?.primaryColor
-    ? `linear-gradient(135deg, ${orgBranding.primaryColor} 0%, ${orgBranding.accentColor} 100%)`
-    : 'var(--gradient-accent)'
-  const accentShadow = orgBranding?.primaryColor
-    ? `0 2px 8px ${orgBranding.primaryColor}4D`
-    : '0 2px 8px rgba(108, 92, 231, 0.3)'
+  const accentBg = `linear-gradient(135deg, ${branding.primaryColor} 0%, ${branding.accentColor} 100%)`
+  const accentShadow = `0 2px 8px ${branding.primaryColor}4D`
 
   return (
     <aside
@@ -96,11 +93,11 @@ export default function Sidebar({
       >
         {!collapsed && (
           <div className="flex items-center gap-2.5 min-w-0">
-            {orgBranding?.logoUrl ? (
+            {branding.logoUrl ? (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
-                src={orgBranding.logoUrl}
-                alt={orgBranding.name}
+                src={branding.logoUrl}
+                alt={orgName}
                 className="w-9 h-9 rounded-lg object-cover shrink-0"
               />
             ) : (
@@ -111,7 +108,7 @@ export default function Sidebar({
                   boxShadow: accentShadow,
                 }}
               >
-                {orgBranding ? orgBranding.name.charAt(0).toUpperCase() : <Zap className="w-5 h-5" />}
+                {orgName.charAt(0).toUpperCase()}
               </div>
             )}
             <div className="min-w-0">
@@ -123,11 +120,11 @@ export default function Sidebar({
           </div>
         )}
         {collapsed && (
-          orgBranding?.logoUrl ? (
+          branding.logoUrl ? (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img
-              src={orgBranding.logoUrl}
-              alt={orgBranding.name}
+              src={branding.logoUrl}
+              alt={orgName}
               className="w-9 h-9 rounded-lg object-cover shrink-0 mx-auto"
             />
           ) : (
@@ -138,7 +135,7 @@ export default function Sidebar({
                 boxShadow: accentShadow,
               }}
             >
-              {orgBranding ? orgBranding.name.charAt(0).toUpperCase() : <Zap className="w-5 h-5" />}
+              {orgName.charAt(0).toUpperCase()}
             </div>
           )
         )}

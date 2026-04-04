@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import {
   Search,
-  Bell,
   Plus,
   ChevronRight,
   Settings,
@@ -16,7 +15,7 @@ import {
   Command,
 } from 'lucide-react'
 import Avatar from '@/components/shared/Avatar'
-import type { OrgBrandingProps } from './Sidebar'
+import NotificationPanel from '@/components/shared/NotificationPanel'
 
 const quickAddItems = [
   { label: 'New Contact', href: '/contacts/new', icon: UserPlus },
@@ -31,7 +30,6 @@ function getBreadcrumbs(pathname: string) {
   let path = ''
   for (const seg of segments) {
     path += '/' + seg
-    // Skip dynamic segments like UUIDs
     if (seg.length > 20) continue
     crumbs.push({
       label: seg.charAt(0).toUpperCase() + seg.slice(1).replace(/-/g, ' '),
@@ -44,23 +42,17 @@ function getBreadcrumbs(pathname: string) {
 export default function TopBar({
   userName,
   orgName,
-  orgBranding,
 }: {
   userName: string
   orgName?: string
-  orgBranding?: OrgBrandingProps | null
 }) {
-  const [search, setSearch] = useState('')
   const [showQuickAdd, setShowQuickAdd] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
-  const [showNotifications, setShowNotifications] = useState(false)
   const pathname = usePathname()
   const breadcrumbs = getBreadcrumbs(pathname)
   const quickAddRef = useRef<HTMLDivElement>(null)
   const userMenuRef = useRef<HTMLDivElement>(null)
-  const notifRef = useRef<HTMLDivElement>(null)
 
-  // Close dropdowns on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (quickAddRef.current && !quickAddRef.current.contains(e.target as Node)) {
@@ -68,9 +60,6 @@ export default function TopBar({
       }
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
         setShowUserMenu(false)
-      }
-      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
-        setShowNotifications(false)
       }
     }
     document.addEventListener('mousedown', handleClick)
@@ -82,20 +71,8 @@ export default function TopBar({
       className="sticky top-0 z-20 flex items-center justify-between px-6 py-2.5 border-b glass-strong"
       style={{ borderColor: 'var(--border)' }}
     >
-      {/* Left: Breadcrumb + Org indicator */}
+      {/* Left: Breadcrumb */}
       <div className="flex items-center gap-2 min-w-0">
-        {orgBranding && (
-          <span
-            className="text-xs font-semibold px-2 py-0.5 rounded-md mr-2"
-            style={{
-              background: `${orgBranding.primaryColor}1A`,
-              color: orgBranding.primaryColor,
-              border: `1px solid ${orgBranding.primaryColor}33`,
-            }}
-          >
-            {orgBranding.name}
-          </span>
-        )}
         <nav className="flex items-center gap-1 text-sm">
           {breadcrumbs.map((crumb, i) => (
             <span key={crumb.href} className="flex items-center gap-1">
@@ -121,21 +98,21 @@ export default function TopBar({
         </nav>
       </div>
 
-      {/* Center: Search */}
-      <div className="search-input-wrapper flex-1 max-w-md mx-6">
+      {/* Center: Search — opens CommandPalette */}
+      <button
+        onClick={() => {
+          document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))
+        }}
+        className="search-input-wrapper flex-1 max-w-md mx-6 cursor-pointer"
+      >
         <Search className="search-icon w-4 h-4" />
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search contacts, deals, companies..."
-          className="w-full text-sm"
-          style={{ background: 'var(--surface-2)', borderColor: 'transparent' }}
-        />
+        <span className="flex-1 text-sm text-left" style={{ color: 'var(--muted)' }}>
+          Search contacts, deals, companies...
+        </span>
         <span className="search-shortcut flex items-center gap-0.5">
           <Command className="w-3 h-3" />K
         </span>
-      </div>
+      </button>
 
       {/* Right: Actions */}
       <div className="flex items-center gap-2">
@@ -168,29 +145,7 @@ export default function TopBar({
         </div>
 
         {/* Notifications */}
-        <div ref={notifRef} className="relative">
-          <button
-            onClick={() => setShowNotifications(!showNotifications)}
-            className="relative p-2 rounded-lg hover:bg-[var(--surface-2)] transition-colors"
-            style={{ color: 'var(--muted)' }}
-          >
-            <Bell className="w-[1.125rem] h-[1.125rem]" />
-          </button>
-
-          {showNotifications && (
-            <div className="dropdown-menu absolute right-0 top-full mt-1.5 w-80">
-              <div className="px-3 py-2">
-                <p className="text-sm font-semibold">Notifications</p>
-              </div>
-              <div className="dropdown-divider" />
-              <div className="py-4 text-center">
-                <p className="text-sm" style={{ color: 'var(--muted)' }}>
-                  No new notifications
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
+        <NotificationPanel />
 
         {/* User menu */}
         <div ref={userMenuRef} className="relative">
