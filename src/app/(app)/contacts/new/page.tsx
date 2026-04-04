@@ -45,7 +45,6 @@ export default function NewContactPage() {
       title: title || null,
       company_id: companyId || null,
       source: source || null,
-      status,
       notes: notes || null,
     })
 
