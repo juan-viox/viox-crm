@@ -34,7 +34,6 @@ export async function createNotification(
 }
 
 export async function createNotificationForOrg(
-  orgId: string,
   type: NotificationType,
   title: string,
   message?: string,
@@ -47,7 +46,6 @@ export async function createNotificationForOrg(
   const { data: profiles } = await supabase
     .from('profiles')
     .select('id')
-    .eq('organization_id', orgId)
 
   if (!profiles || profiles.length === 0) return []
 

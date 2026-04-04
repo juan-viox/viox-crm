@@ -48,11 +48,9 @@ function formatFileSize(bytes: number | null) {
 export default function FileAttachments({
   entityType,
   entityId,
-  orgId,
 }: {
   entityType: 'contact' | 'company' | 'deal'
   entityId: string
-  orgId: string
 }) {
   const [files, setFiles] = useState<FileDoc[]>([])
   const [uploading, setUploading] = useState(false)
@@ -65,7 +63,6 @@ export default function FileAttachments({
     const query = supabase
       .from('documents')
       .select('*')
-      .eq('organization_id', orgId)
       .order('created_at', { ascending: false })
 
     if (entityType === 'contact') query.eq('contact_id', entityId)
@@ -74,7 +71,7 @@ export default function FileAttachments({
 
     const { data } = await query
     setFiles(data ?? [])
-  }, [entityType, entityId, orgId, supabase])
+  }, [entityType, entityId, supabase])
 
   useEffect(() => {
     loadFiles()
@@ -90,7 +87,7 @@ export default function FileAttachments({
 
     try {
       const ext = file.name.split('.').pop()
-      const path = `${orgId}/${entityType}/${entityId}/${Date.now()}-${file.name}`
+      const path = `${entityType}/${entityId}/${Date.now()}-${file.name}`
 
       const { error: uploadErr } = await supabase.storage
         .from('documents')
@@ -101,7 +98,6 @@ export default function FileAttachments({
       const { data: urlData } = supabase.storage.from('documents').getPublicUrl(path)
 
       const insertData: Record<string, unknown> = {
-        organization_id: orgId,
         name: file.name,
         file_url: urlData.publicUrl,
         file_type: file.type || null,

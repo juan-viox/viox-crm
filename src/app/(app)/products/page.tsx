@@ -9,7 +9,6 @@ import type { Product } from '@/types'
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
-  const [orgId, setOrgId] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [showForm, setShowForm] = useState(false)

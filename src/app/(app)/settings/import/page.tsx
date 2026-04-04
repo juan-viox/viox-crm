@@ -45,7 +45,6 @@ export default function ImportPage() {
   const [headers, setHeaders] = useState<string[]>([])
   const [rows, setRows] = useState<string[][]>([])
   const [mapping, setMapping] = useState<Record<string, string>>({})
-  const [orgId, setOrgId] = useState('')
   const [importing, setImporting] = useState(false)
   const [progress, setProgress] = useState(0)
   const [result, setResult] = useState<{ imported: number; errors: number } | null>(null)

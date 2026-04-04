@@ -80,7 +80,6 @@ export default function CustomFieldsPage() {
   const [showPreview, setShowPreview] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
-  const [orgId, setOrgId] = useState<string | null>(null)
 
   // New field form state
   const [newLabel, setNewLabel] = useState('')

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import Avatar from '@/components/shared/Avatar'
 import NotificationPanel from '@/components/shared/NotificationPanel'
+import ThemeToggle from '@/components/shared/ThemeToggle'
 
 const quickAddItems = [
   { label: 'New Contact', href: '/contacts/new', icon: UserPlus },
@@ -143,6 +144,9 @@ export default function TopBar({
             </div>
           )}
         </div>
+
+        {/* Theme Toggle */}
+        <ThemeToggle compact />
 
         {/* Notifications */}
         <NotificationPanel />

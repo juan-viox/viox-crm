@@ -43,7 +43,6 @@ export default function ContactMergePage() {
   const [scanning, setScanning] = useState(false)
   const [pairs, setPairs] = useState<DuplicatePair[]>([])
   const [scanned, setScanned] = useState(false)
-  const [orgId, setOrgId] = useState('')
   const [userId, setUserId] = useState('')
 
   // Merge flow state
@@ -165,7 +164,6 @@ export default function ContactMergePage() {
           survivorId,
           duplicateId,
           selectedFields,
-          orgId,
           userId,
         }),
       })

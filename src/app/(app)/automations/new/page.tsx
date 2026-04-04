@@ -34,7 +34,6 @@ export default function NewWorkflowPage() {
   const [description, setDescription] = useState('')
   const [triggerType, setTriggerType] = useState<WorkflowTrigger>('contact_created')
   const [actions, setActions] = useState<WorkflowAction[]>([])
-  const [orgId, setOrgId] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [step, setStep] = useState(1)

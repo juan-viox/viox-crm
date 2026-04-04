@@ -27,6 +27,7 @@ import {
   UsersRound,
 } from 'lucide-react'
 import Avatar from '@/components/shared/Avatar'
+import ThemeToggle from '@/components/shared/ThemeToggle'
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -233,6 +234,14 @@ export default function Sidebar({
           <div className="flex justify-center mb-3">
             <Avatar name={userName || 'User'} size="sm" />
           </div>
+        )}
+
+        {collapsed ? (
+          <div className="flex justify-center mb-1">
+            <ThemeToggle compact />
+          </div>
+        ) : (
+          <ThemeToggle showLabel />
         )}
 
         <button

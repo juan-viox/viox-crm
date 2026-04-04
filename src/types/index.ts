@@ -175,6 +175,17 @@ export interface InvoiceItem {
   sort_order: number
 }
 
+export interface CinematicSite {
+  id: string
+  name: string
+  slug: string
+  domain?: string
+  api_key: string
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
 export type WorkflowTrigger = 'contact_created' | 'deal_created' | 'deal_stage_changed' | 'deal_won' | 'deal_lost' | 'activity_created' | 'form_submitted' | 'manual'
 
 export type WorkflowActionType = 'send_email' | 'create_activity' | 'update_field' | 'create_deal' | 'add_tag' | 'notify_user' | 'wait'

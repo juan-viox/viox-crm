@@ -20,7 +20,6 @@ interface LineItem {
 export default function NewInvoicePage() {
   const [contacts, setContacts] = useState<Contact[]>([])
   const [products, setProducts] = useState<Product[]>([])
-  const [orgId, setOrgId] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')

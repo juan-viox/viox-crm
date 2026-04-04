@@ -1,36 +1,114 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# VioX CRM
 
-## Getting Started
+A modern, AI-powered CRM for your business. Built with Next.js, Supabase, and TypeScript.
 
-First, run the development server:
+Each client gets their own standalone CRM instance -- no multi-tenant complexity, no shared database.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Quick Start
+
+1. Clone this repo into your project:
+   ```
+   git clone <viox-crm-repo-url> crm/
+   cd crm/
+   npm install
+   ```
+
+2. Create a Supabase project at [supabase.com](https://supabase.com)
+
+3. Run the setup script:
+   ```bash
+   bash scripts/setup.sh
+   ```
+
+4. Run the migration SQL in the Supabase SQL Editor:
+   ```
+   supabase/migrations/001_standalone_schema.sql
+   ```
+
+5. Start the dev server:
+   ```bash
+   npm run dev
+   ```
+
+6. Deploy:
+   ```bash
+   npx vercel --prod
+   ```
+
+## Configuration
+
+Edit `src/crm.config.ts` to customize everything:
+
+- **Business info** -- name, phone, email, address, tagline
+- **Branding** -- colors, fonts, logo URL
+- **Deal stages** -- default pipeline stages with colors
+- **Feature flags** -- enable/disable leads, calendar, emails, invoices, automations, portal
+- **Site integration** -- connect your cinematic website
+
+## Architecture
+
+```
+src/
+  crm.config.ts          # THE single config file
+  app/
+    (app)/               # Main CRM dashboard (auth required)
+    (auth)/              # Login / signup pages
+    (portal)/            # Client-facing portal
+    api/v1/ingest/       # Webhook endpoints for site integration
+  components/            # Shared UI components
+  lib/                   # Supabase clients, utilities
+  types/                 # TypeScript interfaces
+supabase/
+  migrations/            # Database schema
+scripts/
+  setup.sh              # Interactive setup wizard
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Connecting to Your Cinematic Site
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+After setup, add this to your cinematic site's JavaScript:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```js
+var CRM = {
+  apiUrl: 'https://your-crm-domain.com/api/v1/ingest',
+  apiKey: 'your-api-key-from-setup'
+};
+```
 
-## Learn More
+The CRM accepts data from four ingest endpoints:
+- `POST /api/v1/ingest/lead` -- Contact form submissions
+- `POST /api/v1/ingest/booking` -- Booking requests
+- `POST /api/v1/ingest/newsletter` -- Newsletter signups
+- `POST /api/v1/ingest/voice-call` -- AI voice agent call logs
 
-To learn more about Next.js, take a look at the following resources:
+All endpoints require the `x-api-key` header matching `SITE_API_KEY` in `.env.local`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Features
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Dashboard** -- Revenue charts, pipeline snapshot, activity feed
+- **Contacts & Companies** -- Full contact management with merge, import, export
+- **Deal Pipeline** -- Kanban board with drag-and-drop
+- **Leads** -- Lead tracking with source attribution and conversion
+- **Calendar** -- Activity calendar with task management
+- **Email** -- Templates, compose, and send (via Resend)
+- **Invoices** -- Create, send, and track invoices with line items
+- **Automations** -- Workflow builder with triggers and actions
+- **Client Portal** -- Branded portal for your clients
+- **AI Providers** -- Configure OpenRouter, Claude, GPT-4o, and more
+- **Integrations** -- Stripe, Twilio, Resend, Blotato
+- **Reports** -- Revenue, pipeline, activity, and source analytics
 
-## Deploy on Vercel
+## Updating
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+To pull updates from the VioX CRM source repo:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+git remote add upstream <viox-crm-source-repo>
+git pull upstream main
+```
+
+Your `crm.config.ts` and `.env.local` will not be overwritten.
+
+---
+
+Powered by VioX AI

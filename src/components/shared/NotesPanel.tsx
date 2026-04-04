@@ -39,16 +39,13 @@ export default function NotesPanel({
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editContent, setEditContent] = useState('')
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
-  const [orgId, setOrgId] = useState<string | null>(null)
 
   useEffect(() => {
     async function loadUser() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
       setCurrentUserId(user.id)
-      const { data: profile } = await supabase
-        .from('profiles').select('organization_id').eq('id', user.id).single()
-      if (profile) setOrgId(profile.organization_id)
+      // No org ID needed in standalone mode
     }
     loadUser()
   }, [supabase])
@@ -75,7 +72,6 @@ export default function NotesPanel({
     setSaving(true)
 
     const { error } = await supabase.from('notes').insert({
-      organization_id: orgId,
       entity_type: entityType,
       entity_id: entityId,
       user_id: currentUserId,

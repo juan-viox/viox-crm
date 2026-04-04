@@ -10,7 +10,6 @@ import type { Contact, EmailTemplate } from '@/types'
 export default function ComposeEmailPage() {
   const [contacts, setContacts] = useState<Contact[]>([])
   const [templates, setTemplates] = useState<EmailTemplate[]>([])
-  const [orgId, setOrgId] = useState('')
   const [userId, setUserId] = useState('')
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
@@ -111,7 +110,6 @@ export default function ComposeEmailPage() {
           subject,
           body,
           contactId: selectedContactId || null,
-          orgId,
           userId,
         }),
       })

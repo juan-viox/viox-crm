@@ -59,7 +59,6 @@ const roleConfig: Record<string, { label: string; icon: typeof Shield; color: st
 
 export default function TeamPage() {
   const [members, setMembers] = useState<TeamMember[]>([])
-  const [orgId, setOrgId] = useState('')
   const [currentUserId, setCurrentUserId] = useState('')
   const [loading, setLoading] = useState(true)
   const [showInvite, setShowInvite] = useState(false)
@@ -109,7 +108,6 @@ export default function TeamPage() {
         body: JSON.stringify({
           email: inviteEmail,
           role: inviteRole,
-          orgId,
           invitedBy: currentUserId,
         }),
       })

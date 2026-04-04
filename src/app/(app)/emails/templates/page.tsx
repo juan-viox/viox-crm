@@ -11,7 +11,6 @@ const COMMON_VARIABLES = ['{{first_name}}', '{{last_name}}', '{{email}}', '{{com
 
 export default function EmailTemplatesPage() {
   const [templates, setTemplates] = useState<EmailTemplate[]>([])
-  const [orgId, setOrgId] = useState('')
   const [userId, setUserId] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)

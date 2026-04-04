@@ -16,7 +16,6 @@ interface StageFormItem {
 
 export default function PipelineSettingsPage() {
   const [stages, setStages] = useState<StageFormItem[]>([])
-  const [orgId, setOrgId] = useState('')
   const [loading, setLoading] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')

@@ -37,7 +37,6 @@ export default function TasksPage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>('all')
   const [showFilters, setShowFilters] = useState(false)
-  const [orgId, setOrgId] = useState<string>('')
 
   // Quick add state
   const [showQuickAdd, setShowQuickAdd] = useState(false)
@@ -98,7 +97,7 @@ export default function TasksPage() {
   }
 
   async function addTask() {
-    if (!newTitle.trim() || !orgId) return
+    if (!newTitle.trim()) return
     setAdding(true)
 
     const { data: { user } } = await supabase.auth.getUser()
