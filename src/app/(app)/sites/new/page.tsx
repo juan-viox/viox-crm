@@ -26,17 +26,9 @@ export default function NewSitePage() {
     setLoading(true)
     setError('')
 
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { setError('Not authenticated'); setLoading(false); return }
-
-    const { data: profile } = await supabase
-      .from('profiles').select('organization_id').eq('id', user.id).single()
-    if (!profile) { setError('No profile found'); setLoading(false); return }
-
     const apiKey = generateApiKey()
 
     const { error: insertError } = await supabase.from('cinematic_sites').insert({
-      organization_id: profile.organization_id,
       name,
       slug,
       domain: domain || null,

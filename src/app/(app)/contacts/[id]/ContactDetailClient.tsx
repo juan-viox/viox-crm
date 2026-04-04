@@ -42,12 +42,10 @@ export default function ContactDetailClient({
   contact,
   activities,
   deals,
-  orgId,
 }: {
   contact: any
   activities: any[]
   deals: any[]
-  orgId: string
 }) {
   const [activeTab, setActiveTab] = useState('activity')
   const containerRef = useRef<HTMLDivElement>(null)
@@ -261,7 +259,7 @@ export default function ContactDetailClient({
           )}
 
           {activeTab === 'files' && (
-            <FileAttachments entityType="contact" entityId={contact.id} orgId={orgId} />
+            <FileAttachments entityType="contact" entityId={contact.id} />
           )}
         </div>
 

@@ -132,7 +132,6 @@ export default function InvoiceDetailPage() {
                 alert('No email address on contact. Activity logged.')
               }
               await supabase.from('activities').insert({
-                organization_id: invoice.organization_id,
                 contact_id: invoice.contact_id,
                 type: 'email',
                 title: `Invoice ${invoice.invoice_number} sent`,

@@ -113,7 +113,7 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
             <ContactTimeline activities={activities ?? []} />
           </div>
 
-          <FileAttachments entityType="deal" entityId={id} orgId={deal.organization_id} />
+          <FileAttachments entityType="deal" entityId={id} />
 
           {/* Notes */}
           <div className="card">

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import PortalNav from '@/components/portal/PortalNav'
+import crmConfig from '@/crm.config'
 import { CalendarDays, Image, UserCircle, ArrowRight, Loader2 } from 'lucide-react'
 
 interface Contact {
@@ -102,7 +103,7 @@ export default function PortalDashboard() {
               color: '#8B7355',
             }}
           >
-            Here is an overview of your DreamersJoy experience.
+            Here is an overview of your {crmConfig.name} experience.
           </p>
         </div>
 

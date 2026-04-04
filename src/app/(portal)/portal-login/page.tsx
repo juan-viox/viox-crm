@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Mail, Lock, Loader2 } from 'lucide-react'
+import crmConfig from '@/crm.config'
 
 export default function PortalLoginPage() {
   const [email, setEmail] = useState('')
@@ -12,6 +13,8 @@ export default function PortalLoginPage() {
   const [error, setError] = useState('')
   const router = useRouter()
   const supabase = createClient()
+
+  const branding = crmConfig.branding
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
@@ -31,32 +34,45 @@ export default function PortalLoginPage() {
   return (
     <div
       className="min-h-screen flex items-center justify-center px-4"
-      style={{ background: '#F5F0EB' }}
+      style={{ background: branding.secondaryColor }}
     >
+      <link
+        href={`https://fonts.googleapis.com/css2?family=${branding.displayFont.replace(/ /g, '+')}:ital,wght@0,400;0,500;0,600;0,700;1,400&family=${branding.bodyFont.replace(/ /g, '+')}:wght@300;400;500;600&display=swap`}
+        rel="stylesheet"
+      />
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-10">
-          <div
-            className="inline-flex items-center justify-center rounded-full mx-auto mb-5"
-            style={{
-              width: 64,
-              height: 64,
-              background: '#334155',
-              color: '#FAFAF8',
-              fontFamily: "'Cormorant Garamond', Georgia, serif",
-              fontSize: '1.75rem',
-              fontWeight: 600,
-            }}
-          >
-            D
-          </div>
+          {branding.logoUrl ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={branding.logoUrl}
+              alt={crmConfig.name}
+              className="mx-auto mb-4"
+              style={{ height: 56, objectFit: 'contain' }}
+            />
+          ) : (
+            <div
+              className="inline-flex items-center justify-center rounded-full mx-auto mb-5"
+              style={{
+                width: 64,
+                height: 64,
+                background: branding.primaryColor,
+                color: branding.lightColor,
+                fontFamily: `'${branding.displayFont}', Georgia, serif`,
+                fontSize: '1.75rem',
+                fontWeight: 600,
+              }}
+            >
+              {crmConfig.name.charAt(0)}
+            </div>
+          )}
           <h1
-            className="portal-heading"
             style={{
-              fontFamily: "'Cormorant Garamond', Georgia, serif",
+              fontFamily: `'${branding.displayFont}', Georgia, serif`,
               fontSize: '2.25rem',
               fontWeight: 600,
-              color: '#334155',
+              color: branding.primaryColor,
               letterSpacing: '-0.02em',
               marginBottom: '0.5rem',
             }}
@@ -65,22 +81,21 @@ export default function PortalLoginPage() {
           </h1>
           <p
             style={{
-              fontFamily: "'Jost', system-ui, sans-serif",
+              fontFamily: `'${branding.bodyFont}', system-ui, sans-serif`,
               fontSize: '1rem',
-              color: '#8B7355',
+              color: branding.accentColor,
               fontWeight: 400,
             }}
           >
-            Access your workshop bookings and gallery
+            {crmConfig.tagline || 'Access your account'}
           </p>
         </div>
 
         {/* Login card */}
         <div
-          className="portal-card"
           style={{
             background: '#FFFFFF',
-            border: '1px solid #E8E0D8',
+            border: `1px solid ${branding.accentColor}20`,
             borderRadius: '0.75rem',
             padding: '2rem',
             boxShadow: '0 4px 16px rgba(0, 0, 0, 0.05)',
@@ -93,7 +108,7 @@ export default function PortalLoginPage() {
                 style={{
                   background: 'rgba(196, 91, 75, 0.08)',
                   color: '#C45B4B',
-                  fontFamily: "'Jost', system-ui, sans-serif",
+                  fontFamily: `'${branding.bodyFont}', system-ui, sans-serif`,
                 }}
               >
                 {error}
@@ -104,10 +119,10 @@ export default function PortalLoginPage() {
               <label
                 htmlFor="portal-email"
                 style={{
-                  fontFamily: "'Jost', system-ui, sans-serif",
+                  fontFamily: `'${branding.bodyFont}', system-ui, sans-serif`,
                   fontSize: '0.875rem',
                   fontWeight: 500,
-                  color: '#334155',
+                  color: branding.primaryColor,
                   marginBottom: '0.375rem',
                   display: 'block',
                 }}
@@ -118,7 +133,7 @@ export default function PortalLoginPage() {
                 <Mail
                   className="absolute left-3 top-1/2 -translate-y-1/2"
                   size={16}
-                  style={{ color: '#C9B8A8' }}
+                  style={{ color: branding.accentColor }}
                 />
                 <input
                   id="portal-email"
@@ -129,7 +144,7 @@ export default function PortalLoginPage() {
                   required
                   className="w-full pl-10"
                   style={{
-                    fontFamily: "'Jost', system-ui, sans-serif",
+                    fontFamily: `'${branding.bodyFont}', system-ui, sans-serif`,
                     height: '2.75rem',
                   }}
                 />
@@ -140,10 +155,10 @@ export default function PortalLoginPage() {
               <label
                 htmlFor="portal-password"
                 style={{
-                  fontFamily: "'Jost', system-ui, sans-serif",
+                  fontFamily: `'${branding.bodyFont}', system-ui, sans-serif`,
                   fontSize: '0.875rem',
                   fontWeight: 500,
-                  color: '#334155',
+                  color: branding.primaryColor,
                   marginBottom: '0.375rem',
                   display: 'block',
                 }}
@@ -154,7 +169,7 @@ export default function PortalLoginPage() {
                 <Lock
                   className="absolute left-3 top-1/2 -translate-y-1/2"
                   size={16}
-                  style={{ color: '#C9B8A8' }}
+                  style={{ color: branding.accentColor }}
                 />
                 <input
                   id="portal-password"
@@ -165,7 +180,7 @@ export default function PortalLoginPage() {
                   required
                   className="w-full pl-10"
                   style={{
-                    fontFamily: "'Jost', system-ui, sans-serif",
+                    fontFamily: `'${branding.bodyFont}', system-ui, sans-serif`,
                     height: '2.75rem',
                   }}
                 />
@@ -175,8 +190,14 @@ export default function PortalLoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="portal-btn portal-btn-primary w-full justify-center"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-medium transition-opacity"
               style={{
+                background: branding.primaryColor,
+                color: branding.secondaryColor,
+                fontFamily: `'${branding.bodyFont}', system-ui, sans-serif`,
+                border: 'none',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.6 : 1,
                 height: '2.75rem',
                 fontSize: '0.9375rem',
                 borderRadius: '0.5rem',
@@ -193,15 +214,15 @@ export default function PortalLoginPage() {
           <p
             className="text-center mt-6"
             style={{
-              fontFamily: "'Jost', system-ui, sans-serif",
+              fontFamily: `'${branding.bodyFont}', system-ui, sans-serif`,
               fontSize: '0.875rem',
-              color: '#8B7355',
+              color: branding.accentColor,
             }}
           >
             Don&apos;t have an account?{' '}
             <a
-              href="mailto:hello@dreamersjoy.com"
-              style={{ color: '#8B7355', fontWeight: 500, textDecoration: 'underline' }}
+              href={`mailto:${crmConfig.email}`}
+              style={{ color: branding.accentColor, fontWeight: 500, textDecoration: 'underline' }}
             >
               Contact us
             </a>
@@ -212,13 +233,14 @@ export default function PortalLoginPage() {
         <p
           className="text-center mt-8"
           style={{
-            fontFamily: "'Cormorant Garamond', Georgia, serif",
+            fontFamily: `'${branding.displayFont}', Georgia, serif`,
             fontSize: '0.875rem',
-            color: '#C9B8A8',
+            color: branding.accentColor,
             fontStyle: 'italic',
+            opacity: 0.6,
           }}
         >
-          DreamersJoy Floral Studio
+          {crmConfig.name}
         </p>
       </div>
     </div>

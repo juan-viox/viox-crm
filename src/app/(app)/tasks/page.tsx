@@ -58,22 +58,9 @@ export default function TasksPage() {
   const supabase = createClient()
 
   const loadTasks = useCallback(async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('organization_id')
-      .eq('id', user.id)
-      .single()
-
-    if (!profile) return
-    setOrgId(profile.organization_id)
-
     const { data } = await supabase
       .from('activities')
       .select('*, contact:contacts(first_name, last_name), deal:deals(title)')
-      .eq('organization_id', profile.organization_id)
       .eq('type', 'task')
       .order('created_at', { ascending: false })
 
@@ -117,7 +104,6 @@ export default function TasksPage() {
     const { data: { user } } = await supabase.auth.getUser()
 
     await supabase.from('activities').insert({
-      organization_id: orgId,
       user_id: user?.id,
       type: 'task',
       title: newTitle.trim(),

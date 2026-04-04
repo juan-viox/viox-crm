@@ -1,7 +1,6 @@
-import { createServerSupabaseClient } from '@/lib/supabase/server'
+import crmConfig from '@/crm.config'
 
 export interface OrgBranding {
-  id: string
   name: string
   slug: string
   primary_color: string
@@ -16,50 +15,23 @@ export interface OrgBranding {
   email: string | null
 }
 
-const DEFAULT_BRANDING: Omit<OrgBranding, 'id' | 'name' | 'slug'> = {
-  primary_color: '#334155',
-  secondary_color: '#F5F0EB',
-  accent_color: '#8B7355',
-  display_font: 'Cormorant Garamond',
-  body_font: 'Jost',
-  logo_url: null,
-  tagline: null,
-  website: null,
-  phone: null,
-  email: null,
-}
-
 /**
- * Fetch org branding from Supabase by slug.
- * Falls back to sensible defaults for missing fields.
+ * Get branding from crm.config.ts (standalone mode - no DB lookup needed).
  */
-export async function getOrgBranding(orgSlug: string): Promise<OrgBranding | null> {
-  const supabase = await createServerSupabaseClient()
-
-  const { data, error } = await supabase
-    .from('organizations')
-    .select(
-      'id, name, slug, primary_color, secondary_color, accent_color, display_font, body_font, logo_url, tagline, website, phone, email'
-    )
-    .eq('slug', orgSlug)
-    .single()
-
-  if (error || !data) return null
-
+export function getBranding(): OrgBranding {
   return {
-    id: data.id,
-    name: data.name,
-    slug: data.slug,
-    primary_color: data.primary_color ?? DEFAULT_BRANDING.primary_color,
-    secondary_color: data.secondary_color ?? DEFAULT_BRANDING.secondary_color,
-    accent_color: data.accent_color ?? DEFAULT_BRANDING.accent_color,
-    display_font: data.display_font ?? DEFAULT_BRANDING.display_font,
-    body_font: data.body_font ?? DEFAULT_BRANDING.body_font,
-    logo_url: data.logo_url ?? DEFAULT_BRANDING.logo_url,
-    tagline: data.tagline ?? DEFAULT_BRANDING.tagline,
-    website: data.website ?? DEFAULT_BRANDING.website,
-    phone: data.phone ?? DEFAULT_BRANDING.phone,
-    email: data.email ?? DEFAULT_BRANDING.email,
+    name: crmConfig.name,
+    slug: crmConfig.slug,
+    primary_color: crmConfig.branding.primaryColor,
+    secondary_color: crmConfig.branding.secondaryColor,
+    accent_color: crmConfig.branding.accentColor,
+    display_font: crmConfig.branding.displayFont,
+    body_font: crmConfig.branding.bodyFont,
+    logo_url: crmConfig.branding.logoUrl,
+    tagline: crmConfig.tagline,
+    website: crmConfig.website,
+    phone: crmConfig.phone,
+    email: crmConfig.email,
   }
 }
 

@@ -93,17 +93,7 @@ export default function CustomFieldsPage() {
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
 
-  // Fetch org ID on mount
-  useEffect(() => {
-    async function loadOrg() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const { data: profile } = await supabase
-        .from('profiles').select('organization_id').eq('id', user.id).single()
-      if (profile) setOrgId(profile.organization_id)
-    }
-    loadOrg()
-  }, [supabase])
+  // No org ID needed in standalone mode
 
   const fetchFields = useCallback(async () => {
     setLoading(true)
@@ -184,7 +174,6 @@ export default function CustomFieldsPage() {
       const { error: insertError } = await supabase
         .from('custom_field_definitions')
         .insert({
-          organization_id: orgId,
           entity_type: activeTab,
           field_name: fieldName,
           field_label: newLabel.trim(),

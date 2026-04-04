@@ -64,19 +64,9 @@ export default function ContactMergePage() {
     if (!user) { setScanning(false); return }
     setUserId(user.id)
 
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('organization_id')
-      .eq('id', user.id)
-      .single()
-
-    if (!profile) { setScanning(false); return }
-    setOrgId(profile.organization_id)
-
     const { data: contacts } = await supabase
       .from('contacts')
       .select('*, company:companies(name)')
-      .eq('organization_id', profile.organization_id)
       .order('first_name')
 
     if (!contacts || contacts.length < 2) {

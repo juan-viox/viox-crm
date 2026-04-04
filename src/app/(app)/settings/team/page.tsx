@@ -82,19 +82,9 @@ export default function TeamPage() {
 
     setCurrentUserId(user.id)
 
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('organization_id')
-      .eq('id', user.id)
-      .single()
-
-    if (!profile) return
-    setOrgId(profile.organization_id)
-
     const { data: profiles } = await supabase
       .from('profiles')
       .select('id, email, full_name, avatar_url, role, created_at')
-      .eq('organization_id', profile.organization_id)
       .order('created_at', { ascending: true })
 
     setMembers(

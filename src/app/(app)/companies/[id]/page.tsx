@@ -117,7 +117,7 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
             )}
           </div>
 
-          <FileAttachments entityType="company" entityId={id} orgId={company.organization_id} />
+          <FileAttachments entityType="company" entityId={id} />
 
           {/* Notes */}
           <div className="card">
