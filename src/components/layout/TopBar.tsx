@@ -16,6 +16,7 @@ import {
   Command,
 } from 'lucide-react'
 import Avatar from '@/components/shared/Avatar'
+import type { OrgBrandingProps } from './Sidebar'
 
 const quickAddItems = [
   { label: 'New Contact', href: '/contacts/new', icon: UserPlus },
@@ -43,9 +44,11 @@ function getBreadcrumbs(pathname: string) {
 export default function TopBar({
   userName,
   orgName,
+  orgBranding,
 }: {
   userName: string
   orgName?: string
+  orgBranding?: OrgBrandingProps | null
 }) {
   const [search, setSearch] = useState('')
   const [showQuickAdd, setShowQuickAdd] = useState(false)
@@ -79,8 +82,20 @@ export default function TopBar({
       className="sticky top-0 z-20 flex items-center justify-between px-6 py-2.5 border-b glass-strong"
       style={{ borderColor: 'var(--border)' }}
     >
-      {/* Left: Breadcrumb */}
+      {/* Left: Breadcrumb + Org indicator */}
       <div className="flex items-center gap-2 min-w-0">
+        {orgBranding && (
+          <span
+            className="text-xs font-semibold px-2 py-0.5 rounded-md mr-2"
+            style={{
+              background: `${orgBranding.primaryColor}1A`,
+              color: orgBranding.primaryColor,
+              border: `1px solid ${orgBranding.primaryColor}33`,
+            }}
+          >
+            {orgBranding.name}
+          </span>
+        )}
         <nav className="flex items-center gap-1 text-sm">
           {breadcrumbs.map((crumb, i) => (
             <span key={crumb.href} className="flex items-center gap-1">

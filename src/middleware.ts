@@ -1,26 +1,42 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { getSubdomain, isAdminSubdomain, resolveOrgSlug } from '@/lib/subdomain'
 
+/** Paths that never require authentication */
 const publicPaths = ['/login', '/signup', '/auth/callback']
 
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
+  const { pathname, searchParams } = request.nextUrl
+  const host = request.headers.get('host') || ''
 
-  // Allow public paths
+  // ── 1. Resolve the org slug from subdomain / dev overrides ──
+  const orgSlug = resolveOrgSlug(host, searchParams)
+
+  // ── 2. Always allow public paths ──
   if (publicPaths.some((p) => pathname.startsWith(p))) {
-    return NextResponse.next()
+    const response = NextResponse.next({ request })
+    if (orgSlug && !isAdminSubdomain(orgSlug)) {
+      response.headers.set('x-org-slug', orgSlug)
+    }
+    return response
   }
 
-  // Allow ingest API routes (they use API key auth)
+  // ── 3. Always allow ingest API routes (API-key auth in route handlers) ──
   if (pathname.startsWith('/api/v1/ingest')) {
     return NextResponse.next()
   }
 
-  // Allow portal login pages without auth (branded login)
+  // ── 4. Always allow public branding API ──
+  if (pathname.startsWith('/api/v1/branding')) {
+    return NextResponse.next()
+  }
+
+  // ── 5. Portal login pages — no auth required ──
   if (/^\/portal\/[^/]+\/login$/.test(pathname)) {
     return NextResponse.next()
   }
 
+  // ── 6. Create Supabase client that handles cookie refresh ──
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -32,7 +48,7 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
+          cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           )
           supabaseResponse = NextResponse.next({ request })
@@ -48,27 +64,42 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Portal routes: require auth, redirect to branded login
+  // ── 7. Inject x-org-slug header for downstream layouts ──
+  if (orgSlug && !isAdminSubdomain(orgSlug)) {
+    supabaseResponse.headers.set('x-org-slug', orgSlug)
+  }
+
+  // ── 8. Portal routes: require auth, redirect to branded login ──
   if (pathname.startsWith('/portal/')) {
     if (!user) {
-      // Extract orgSlug from /portal/[orgSlug]/...
       const segments = pathname.split('/')
-      const orgSlug = segments[2]
-      if (orgSlug) {
+      const portalOrg = segments[2]
+      if (portalOrg) {
         const url = request.nextUrl.clone()
-        url.pathname = `/portal/${orgSlug}/login`
+        url.pathname = `/portal/${portalOrg}/login`
         return NextResponse.redirect(url)
       }
     }
     return supabaseResponse
   }
 
-  // Legacy portal routes
+  // ── 9. Legacy portal routes ──
   if (pathname.startsWith('/portal-login')) {
     return supabaseResponse
   }
 
-  // Admin routes: require auth (super-admin check done in layout)
+  // ── 10. Admin subdomain: require auth + super-admin check done in layout ──
+  if (isAdminSubdomain(orgSlug)) {
+    if (!user) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      return NextResponse.redirect(url)
+    }
+    supabaseResponse.headers.set('x-org-slug', 'admin')
+    return supabaseResponse
+  }
+
+  // ── 11. Admin routes (path-based, for backwards compat) ──
   if (pathname.startsWith('/admin')) {
     if (!user) {
       const url = request.nextUrl.clone()
@@ -78,7 +109,7 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse
   }
 
-  // All other authenticated routes
+  // ── 12. All other authenticated routes ──
   if (!user && !pathname.startsWith('/api')) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'

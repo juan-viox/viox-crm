@@ -23,6 +23,14 @@ import {
 } from 'lucide-react'
 import Avatar from '@/components/shared/Avatar'
 
+export interface OrgBrandingProps {
+  name: string
+  slug: string
+  primaryColor: string
+  accentColor: string
+  logoUrl: string | null
+}
+
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/leads', label: 'Leads', icon: UserPlus },
@@ -45,10 +53,12 @@ export default function Sidebar({
   orgName,
   userName,
   userRole,
+  orgBranding,
 }: {
   orgName: string
   userName?: string
   userRole?: string
+  orgBranding?: OrgBrandingProps | null
 }) {
   const [collapsed, setCollapsed] = useState(false)
   const pathname = usePathname()
@@ -60,6 +70,14 @@ export default function Sidebar({
     router.push('/login')
     router.refresh()
   }
+
+  // Derive branding-aware styles
+  const accentBg = orgBranding?.primaryColor
+    ? `linear-gradient(135deg, ${orgBranding.primaryColor} 0%, ${orgBranding.accentColor} 100%)`
+    : 'var(--gradient-accent)'
+  const accentShadow = orgBranding?.primaryColor
+    ? `0 2px 8px ${orgBranding.primaryColor}4D`
+    : '0 2px 8px rgba(108, 92, 231, 0.3)'
 
   return (
     <aside
@@ -78,33 +96,51 @@ export default function Sidebar({
       >
         {!collapsed && (
           <div className="flex items-center gap-2.5 min-w-0">
-            <div
-              className="w-9 h-9 rounded-lg flex items-center justify-center text-white text-sm font-bold shrink-0"
-              style={{
-                background: 'var(--gradient-accent)',
-                boxShadow: '0 2px 8px rgba(108, 92, 231, 0.3)',
-              }}
-            >
-              <Zap className="w-5 h-5" />
-            </div>
+            {orgBranding?.logoUrl ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={orgBranding.logoUrl}
+                alt={orgBranding.name}
+                className="w-9 h-9 rounded-lg object-cover shrink-0"
+              />
+            ) : (
+              <div
+                className="w-9 h-9 rounded-lg flex items-center justify-center text-white text-sm font-bold shrink-0"
+                style={{
+                  background: accentBg,
+                  boxShadow: accentShadow,
+                }}
+              >
+                {orgBranding ? orgBranding.name.charAt(0).toUpperCase() : <Zap className="w-5 h-5" />}
+              </div>
+            )}
             <div className="min-w-0">
               <span className="font-semibold text-sm block truncate">{orgName}</span>
               <span className="text-[10px] block" style={{ color: 'var(--muted)' }}>
-                VioX CRM
+                Powered by VioX AI
               </span>
             </div>
           </div>
         )}
         {collapsed && (
-          <div
-            className="w-9 h-9 rounded-lg flex items-center justify-center text-white text-sm font-bold shrink-0 mx-auto"
-            style={{
-              background: 'var(--gradient-accent)',
-              boxShadow: '0 2px 8px rgba(108, 92, 231, 0.3)',
-            }}
-          >
-            <Zap className="w-5 h-5" />
-          </div>
+          orgBranding?.logoUrl ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={orgBranding.logoUrl}
+              alt={orgBranding.name}
+              className="w-9 h-9 rounded-lg object-cover shrink-0 mx-auto"
+            />
+          ) : (
+            <div
+              className="w-9 h-9 rounded-lg flex items-center justify-center text-white text-sm font-bold shrink-0 mx-auto"
+              style={{
+                background: accentBg,
+                boxShadow: accentShadow,
+              }}
+            >
+              {orgBranding ? orgBranding.name.charAt(0).toUpperCase() : <Zap className="w-5 h-5" />}
+            </div>
+          )
         )}
         {!collapsed && (
           <button
@@ -211,6 +247,13 @@ export default function Sidebar({
           <LogOut className="w-4 h-4 shrink-0" />
           {!collapsed && <span className="text-[13px]">Logout</span>}
         </button>
+
+        {/* Powered by VioX AI */}
+        {!collapsed && (
+          <p className="text-center text-[9px] mt-3 tracking-wide" style={{ color: 'var(--muted)', opacity: 0.6 }}>
+            Powered by VioX AI
+          </p>
+        )}
       </div>
     </aside>
   )
