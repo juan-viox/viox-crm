@@ -42,7 +42,7 @@ export default function NewContactPage() {
       last_name: lastName,
       email: email || null,
       phone: phone || null,
-      title: title || null,
+      job_title: title || null,
       company_id: companyId || null,
       source: source || null,
       notes: notes || null,

@@ -1,27 +1,25 @@
 import { NextResponse } from 'next/server'
-import { createAdminClient } from '@/lib/supabase/admin'
+import crmConfig from '@/crm.config'
 
-// Public endpoint — no auth required. Returns org branding for portal pages.
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ slug: string }> }
-) {
-  const { slug } = await params
-  const supabase = createAdminClient()
+// Returns branding from crm.config.ts (standalone mode - no DB lookup needed)
+export async function GET() {
+  const b = crmConfig.branding
 
-  const { data: org, error } = await supabase
-    .from('organizations')
-    .select('name, slug, primary_color, secondary_color, accent_color, accent2_color, accent3_color, dark_color, light_color, display_font, body_font, logo_url, tagline, phone, email, website, instagram, city, state')
-    .eq('slug', slug)
-    .eq('is_active', true)
-    .single()
-
-  if (error || !org) {
-    return NextResponse.json({ error: 'Organization not found' }, { status: 404 })
-  }
-
-  // Cache for 5 minutes
-  return NextResponse.json(org, {
+  return NextResponse.json({
+    name: crmConfig.name,
+    slug: crmConfig.slug,
+    primary_color: b.primaryColor,
+    secondary_color: b.secondaryColor,
+    accent_color: b.accentColor,
+    display_font: b.displayFont,
+    body_font: b.bodyFont,
+    logo_url: b.logoUrl,
+    tagline: crmConfig.tagline,
+    phone: crmConfig.phone,
+    email: crmConfig.email,
+    website: crmConfig.website,
+    instagram: crmConfig.instagram,
+  }, {
     headers: {
       'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
       'Access-Control-Allow-Origin': '*',
