@@ -4,6 +4,7 @@ import { useState, useMemo, useRef } from 'react'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { createClient } from '@/lib/supabase/client'
+import { getOrgId } from '@/lib/utils'
 import {
   ChevronLeft,
   ChevronRight,
@@ -178,9 +179,12 @@ export default function CalendarClient({
       return
     }
 
+    const orgId = await getOrgId(supabase)
+
     const { data, error } = await supabase
       .from('activities')
       .insert({
+        organization_id: orgId,
         user_id: user.id,
         type: formType,
         title: formTitle,
@@ -188,7 +192,7 @@ export default function CalendarClient({
         due_date: formDueDate || null,
         contact_id: formContactId || null,
         deal_id: formDealId || null,
-        completed: false,
+        status: 'pending',
       })
       .select()
       .single()

@@ -19,6 +19,7 @@ import {
   Zap,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { getOrgId } from '@/lib/utils'
 import Avatar from '@/components/shared/Avatar'
 import ContactTimeline from '@/components/contacts/ContactTimeline'
 import { formatDate } from '@/lib/utils'
@@ -57,28 +58,23 @@ export default function LeadDetailClient({
     setConverting(true)
 
     try {
+      const orgId = await getOrgId(supabase)
+
       // Create a deal from this lead
       const { data: deal, error } = await supabase
         .from('deals')
         .insert({
+          organization_id: orgId,
           contact_id: contact.id,
           company_id: contact.company_id || null,
           stage_id: firstStageId,
           title: `${contact.first_name} ${contact.last_name} - Deal`,
           amount: 0,
-          currency: 'USD',
-          status: 'open',
         })
         .select()
         .single()
 
       if (error) throw error
-
-      // Update contact status to active
-      await supabase
-        .from('contacts')
-        .update({ status: 'active' })
-        .eq('id', contact.id)
 
       setConverted(true)
 
@@ -135,12 +131,12 @@ export default function LeadDetailClient({
                     {contact.first_name} {contact.last_name}
                   </h1>
                   <div className="flex items-center gap-3 mt-1 flex-wrap">
-                    {contact.title && (
+                    {contact.job_title && (
                       <span
                         className="text-sm"
                         style={{ color: 'var(--muted)' }}
                       >
-                        {contact.title}
+                        {contact.job_title}
                       </span>
                     )}
                     {contact.company?.name && (

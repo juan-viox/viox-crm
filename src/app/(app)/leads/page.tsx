@@ -7,10 +7,12 @@ import LeadsClient from './LeadsClient'
 export default async function LeadsPage() {
   const supabase = await createServerSupabaseClient()
 
+  // Multi-tenant schema has no 'status' column on contacts.
+  // Show contacts with source indicating they're leads.
   const { data: contacts } = await supabase
     .from('contacts')
     .select('*, company:companies(name)')
-    .eq('status', 'lead')
+    .in('source', ['web_form', 'newsletter', 'voice_agent', 'booking', 'manual'])
     .order('created_at', { ascending: false })
 
   return (

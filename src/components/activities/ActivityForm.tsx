@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { getOrgId } from '@/lib/utils'
 import { Loader2, Save, X } from 'lucide-react'
 import type { Contact, Deal } from '@/types'
 
@@ -28,7 +29,7 @@ export default function ActivityForm({
     async function load() {
       const [contactsRes, dealsRes] = await Promise.all([
         supabase.from('contacts').select('*').order('first_name'),
-        supabase.from('deals').select('*').eq('status', 'open').order('title'),
+        supabase.from('deals').select('*').is('closed_at', null).order('title'),
       ])
       setContacts(contactsRes.data ?? [])
       setDeals(dealsRes.data ?? [])
@@ -44,9 +45,13 @@ export default function ActivityForm({
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { setError('Not authenticated'); setLoading(false); return }
 
+    const orgId = await getOrgId(supabase)
+    if (!orgId) { setError('Organization not found'); setLoading(false); return }
+
     const { data, error: insertError } = await supabase
       .from('activities')
       .insert({
+        organization_id: orgId,
         user_id: user.id,
         type,
         title,
@@ -54,7 +59,7 @@ export default function ActivityForm({
         contact_id: contactId || null,
         deal_id: dealId || null,
         due_date: dueDate || null,
-        completed: false,
+        status: 'pending',
       })
       .select('*, contact:contacts(first_name, last_name), deal:deals(title)')
       .single()

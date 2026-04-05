@@ -53,7 +53,7 @@ export default function NewWorkflowPage() {
   async function loadData() {
     const [templatesRes, stagesRes] = await Promise.all([
       supabase.from('email_templates').select('*'),
-      supabase.from('deal_stages').select('*').order('position'),
+      supabase.from('deal_stages').select('*').order('sort_order'),
     ])
 
     setTemplates(templatesRes.data ?? [])

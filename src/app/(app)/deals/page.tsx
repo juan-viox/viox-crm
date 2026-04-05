@@ -7,9 +7,9 @@ export default async function DealsPage() {
   const supabase = await createServerSupabaseClient()
 
   const [stagesRes, dealsRes] = await Promise.all([
-    supabase.from('deal_stages').select('*').order('position'),
+    supabase.from('deal_stages').select('*').order('sort_order'),
     supabase.from('deals').select('*, contact:contacts(first_name, last_name), stage:deal_stages(name, color)')
-      .eq('status', 'open').order('created_at', { ascending: false }),
+      .is('closed_at', null).order('created_at', { ascending: false }),
   ])
 
   return (

@@ -11,7 +11,7 @@ export default async function CalendarPage() {
 
   const { data: activities } = await supabase
     .from('activities')
-    .select('id, title, type, due_date, completed, created_at, contact_id')
+    .select('id, title, type, due_date, status, created_at, contact_id')
     .gte('due_date', start.toISOString().split('T')[0])
     .lte('due_date', end.toISOString().split('T')[0])
     .order('due_date', { ascending: true })
@@ -26,7 +26,7 @@ export default async function CalendarPage() {
   const { data: deals } = await supabase
     .from('deals')
     .select('id, title')
-    .eq('status', 'open')
+    .is('closed_at', null)
     .order('title')
 
   return (

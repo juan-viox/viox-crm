@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { getOrgId } from '@/lib/utils'
 import Link from 'next/link'
 import { ArrowLeft, Loader2, Save } from 'lucide-react'
 import { generateApiKey } from '@/lib/utils'
@@ -28,12 +29,16 @@ export default function NewSitePage() {
 
     const apiKey = generateApiKey()
 
+    const orgId = await getOrgId(supabase)
+    if (!orgId) { setError('Organization not found'); setLoading(false); return }
+
     const { error: insertError } = await supabase.from('cinematic_sites').insert({
+      organization_id: orgId,
       name,
       slug,
       domain: domain || null,
       api_key: apiKey,
-      active: true,
+      is_active: true,
     })
 
     if (insertError) { setError(insertError.message); setLoading(false); return }

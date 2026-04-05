@@ -11,6 +11,15 @@ export async function OPTIONS() {
   return NextResponse.json(null, { headers: corsHeaders })
 }
 
+async function getOrgIdFromApiKey(supabase: any, apiKey: string): Promise<string | null> {
+  const { data } = await supabase
+    .from('cinematic_sites')
+    .select('organization_id')
+    .eq('api_key', apiKey)
+    .single()
+  return data?.organization_id ?? null
+}
+
 export async function POST(request: Request) {
   try {
     const apiKey = request.headers.get('x-api-key')
@@ -22,13 +31,22 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { firstName, lastName, email, phone, service, date, notes } = body
 
-    // Upsert contact
+    let orgId = await getOrgIdFromApiKey(supabase, apiKey)
+    if (!orgId) {
+      const { data: org } = await supabase.from('organizations').select('id').limit(1).single()
+      orgId = org?.id ?? null
+    }
+    if (!orgId) {
+      return NextResponse.json({ error: 'No organization found' }, { status: 500, headers: corsHeaders })
+    }
+
     let contactId: string
     if (email) {
       const { data: existing } = await supabase
         .from('contacts')
         .select('id')
         .eq('email', email)
+        .eq('organization_id', orgId)
         .single()
 
       if (existing) {
@@ -42,6 +60,7 @@ export async function POST(request: Request) {
         const { data: newContact } = await supabase
           .from('contacts')
           .insert({
+            organization_id: orgId,
             first_name: firstName || 'Unknown',
             last_name: lastName || '',
             email,
@@ -56,6 +75,7 @@ export async function POST(request: Request) {
       const { data: newContact } = await supabase
         .from('contacts')
         .insert({
+          organization_id: orgId,
           first_name: firstName || 'Unknown',
           last_name: lastName || '',
           phone: phone || null,
@@ -66,33 +86,33 @@ export async function POST(request: Request) {
       contactId = newContact!.id
     }
 
-    // Create deal
     const { data: firstStage } = await supabase
       .from('deal_stages')
       .select('id')
-      .order('position')
+      .eq('organization_id', orgId)
+      .order('sort_order')
       .limit(1)
       .single()
 
     if (firstStage) {
       await supabase.from('deals').insert({
+        organization_id: orgId,
         contact_id: contactId,
         stage_id: firstStage.id,
         title: `Booking: ${service || 'Service'} - ${firstName || ''} ${lastName || ''}`.trim(),
         amount: 0,
-        status: 'open',
         notes: notes || null,
       })
     }
 
-    // Create meeting activity
     await supabase.from('activities').insert({
+      organization_id: orgId,
       contact_id: contactId,
       type: 'meeting',
       title: `Booking: ${service || 'Service'}`,
       description: notes || null,
       due_date: date || null,
-      completed: false,
+      status: 'pending',
       metadata: { service, bookingDate: date },
     })
 

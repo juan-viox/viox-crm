@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { getOrgId } from '@/lib/utils'
 import TaskItem, { type TaskData, type TaskPriority } from '@/components/tasks/TaskItem'
 import EmptyState from '@/components/shared/EmptyState'
 import {
@@ -72,10 +73,12 @@ export default function TasksPage() {
   }, [loadTasks])
 
   async function toggleTask(id: string, completed: boolean) {
+    const newStatus = completed ? 'completed' : 'pending'
     await supabase
       .from('activities')
       .update({
-        completed,
+        status: newStatus,
+        completed_at: completed ? new Date().toISOString() : null,
         metadata: {
           ...tasks.find((t) => t.id === id)?.metadata,
           task_status: completed ? 'done' : 'todo',
@@ -88,7 +91,7 @@ export default function TasksPage() {
         t.id === id
           ? {
               ...t,
-              completed,
+              status: newStatus,
               metadata: { ...t.metadata, task_status: completed ? 'done' : 'todo' },
             }
           : t
@@ -102,12 +105,14 @@ export default function TasksPage() {
 
     const { data: { user } } = await supabase.auth.getUser()
 
+    const orgId = await getOrgId(supabase)
     await supabase.from('activities').insert({
+      organization_id: orgId,
       user_id: user?.id,
       type: 'task',
       title: newTitle.trim(),
       due_date: newDueDate || null,
-      completed: false,
+      status: 'pending',
       metadata: { priority: newPriority, task_status: 'todo' },
     })
 
@@ -125,7 +130,7 @@ export default function TasksPage() {
     setEditDescription(task.description ?? '')
     setEditPriority((task.metadata?.priority as TaskPriority) || 'medium')
     setEditDueDate(task.due_date ? task.due_date.split('T')[0] : '')
-    setEditStatus(task.completed ? 'done' : (task.metadata?.task_status as string) || 'todo')
+    setEditStatus(task.status === 'completed' ? 'done' : (task.metadata?.task_status as string) || 'todo')
   }
 
   async function saveEdit() {
@@ -139,7 +144,8 @@ export default function TasksPage() {
         title: editTitle,
         description: editDescription || null,
         due_date: editDueDate || null,
-        completed,
+        status: completed ? 'completed' : (editStatus === 'in_progress' ? 'in_progress' : 'pending'),
+        completed_at: completed ? new Date().toISOString() : null,
         metadata: {
           ...editTask.metadata,
           priority: editPriority,
@@ -155,7 +161,7 @@ export default function TasksPage() {
 
   // Filtering & sorting
   function getTaskStatus(t: TaskData): string {
-    if (t.completed) return 'done'
+    if (t.status === 'completed') return 'done'
     return (t.metadata?.task_status as string) || 'todo'
   }
 

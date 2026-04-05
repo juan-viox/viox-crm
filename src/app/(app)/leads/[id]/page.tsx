@@ -35,7 +35,7 @@ export default async function LeadDetailPage({
   const { data: firstStage } = await supabase
     .from('deal_stages')
     .select('id, name')
-    .order('position', { ascending: true })
+    .order('sort_order', { ascending: true })
     .limit(1)
     .single()
 

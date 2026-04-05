@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { getOrgId } from '@/lib/utils'
 import Link from 'next/link'
 import { ArrowLeft, Loader2, Save } from 'lucide-react'
 import type { Contact, DealStage } from '@/types'
@@ -26,7 +27,7 @@ export default function NewDealPage() {
     async function load() {
       const [contactsRes, stagesRes] = await Promise.all([
         supabase.from('contacts').select('*').order('first_name'),
-        supabase.from('deal_stages').select('*').order('position'),
+        supabase.from('deal_stages').select('*').order('sort_order'),
       ])
       setContacts(contactsRes.data ?? [])
       setStages(stagesRes.data ?? [])
@@ -44,7 +45,11 @@ export default function NewDealPage() {
 
     const selectedContact = contacts.find(c => c.id === contactId)
 
+    const orgId = await getOrgId(supabase)
+    if (!orgId) { setError('Organization not found'); setLoading(false); return }
+
     const { error: insertError } = await supabase.from('deals').insert({
+      organization_id: orgId,
       title,
       amount: parseFloat(amount) || 0,
       stage_id: stageId,
@@ -52,7 +57,6 @@ export default function NewDealPage() {
       company_id: selectedContact?.company_id || null,
       close_date: closeDate || null,
       probability: parseInt(probability) || null,
-      status: 'open',
       notes: notes || null,
     })
 

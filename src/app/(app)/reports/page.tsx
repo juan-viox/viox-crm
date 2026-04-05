@@ -14,17 +14,17 @@ export default async function ReportsPage() {
   ] = await Promise.all([
     supabase
       .from('deals')
-      .select('id, title, amount, status, probability, stage_id, created_at, updated_at, close_date'),
+      .select('id, title, amount, probability, stage_id, created_at, updated_at, close_date, closed_at'),
     supabase
       .from('contacts')
       .select('id, source, created_at'),
     supabase
       .from('activities')
-      .select('id, type, user_id, created_at, completed'),
+      .select('id, type, user_id, created_at, status'),
     supabase
       .from('deal_stages')
-      .select('id, name, color, position')
-      .order('position'),
+      .select('id, name, color, sort_order, is_won, is_lost')
+      .order('sort_order'),
     supabase
       .from('profiles')
       .select('id, full_name'),
@@ -46,12 +46,24 @@ export default async function ReportsPage() {
     companyDealCounts[cid] = (companyDealCounts[cid] || 0) + 1
   })
 
+  // Compute deal status from stage is_won/is_lost flags
+  const stages = stagesRes.data ?? []
+  const wonStageIds = new Set(stages.filter((s: any) => s.is_won).map((s: any) => s.id))
+  const lostStageIds = new Set(stages.filter((s: any) => s.is_lost).map((s: any) => s.id))
+
+  const dealsWithStatus = (dealsRes.data ?? []).map((d: any) => ({
+    ...d,
+    status: wonStageIds.has(d.stage_id) ? 'won'
+      : lostStageIds.has(d.stage_id) ? 'lost'
+      : 'open',
+  }))
+
   return (
     <ReportsClient
-      deals={dealsRes.data ?? []}
+      deals={dealsWithStatus}
       contacts={contactsRes.data ?? []}
       activities={activitiesRes.data ?? []}
-      stages={stagesRes.data ?? []}
+      stages={stages}
       profiles={profilesRes.data ?? []}
       companies={(companies ?? []).map(c => ({
         ...c,

@@ -47,3 +47,20 @@ export function generateApiKey() {
   crypto.getRandomValues(bytes)
   return Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('')
 }
+
+/**
+ * Get the current user's organization_id from their profile.
+ * Required for all INSERT operations in the multi-tenant schema.
+ */
+export async function getOrgId(supabase: any): Promise<string | null> {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('organization_id')
+    .eq('id', user.id)
+    .single()
+
+  return profile?.organization_id ?? null
+}

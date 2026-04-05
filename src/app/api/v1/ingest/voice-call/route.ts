@@ -11,6 +11,15 @@ export async function OPTIONS() {
   return NextResponse.json(null, { headers: corsHeaders })
 }
 
+async function getOrgIdFromApiKey(supabase: any, apiKey: string): Promise<string | null> {
+  const { data } = await supabase
+    .from('cinematic_sites')
+    .select('organization_id')
+    .eq('api_key', apiKey)
+    .single()
+  return data?.organization_id ?? null
+}
+
 export async function POST(request: Request) {
   try {
     const apiKey = request.headers.get('x-api-key')
@@ -26,11 +35,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Phone is required' }, { status: 400, headers: corsHeaders })
     }
 
-    // Find or create contact by phone
+    let orgId = await getOrgIdFromApiKey(supabase, apiKey)
+    if (!orgId) {
+      const { data: org } = await supabase.from('organizations').select('id').limit(1).single()
+      orgId = org?.id ?? null
+    }
+    if (!orgId) {
+      return NextResponse.json({ error: 'No organization found' }, { status: 500, headers: corsHeaders })
+    }
+
     const { data: existing } = await supabase
       .from('contacts')
       .select('id')
       .eq('phone', phone)
+      .eq('organization_id', orgId)
       .single()
 
     let contactId: string
@@ -48,6 +66,7 @@ export async function POST(request: Request) {
       const { data: newContact } = await supabase
         .from('contacts')
         .insert({
+          organization_id: orgId,
           first_name: nameParts[0],
           last_name: nameParts.slice(1).join(' ') || '',
           phone,
@@ -58,19 +77,15 @@ export async function POST(request: Request) {
       contactId = newContact!.id
     }
 
-    // Create activity
     await supabase.from('activities').insert({
+      organization_id: orgId,
       contact_id: contactId,
       type: 'voice_agent',
       title: `Voice call${callerName ? ` with ${callerName}` : ''}`,
       description: transcript ? transcript.slice(0, 500) : null,
-      completed: true,
-      metadata: {
-        transcript,
-        duration,
-        agentId,
-        phone,
-      },
+      status: 'completed',
+      completed_at: new Date().toISOString(),
+      metadata: { transcript, duration, agentId, phone },
     })
 
     return NextResponse.json({ success: true, contactId }, { headers: corsHeaders })

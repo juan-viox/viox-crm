@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { getOrgId } from '@/lib/utils'
 import Link from 'next/link'
 import { ArrowLeft, Plus, GripVertical, Trash2, Loader2, Save } from 'lucide-react'
 import type { DealStage } from '@/types'
@@ -10,7 +11,7 @@ interface StageFormItem {
   id?: string
   name: string
   color: string
-  position: number
+  sort_order: number
   isNew?: boolean
 }
 
@@ -26,13 +27,13 @@ export default function PipelineSettingsPage() {
       const { data } = await supabase
         .from('deal_stages')
         .select('*')
-        .order('position')
+        .order('sort_order')
 
       setStages((data ?? []).map(s => ({
         id: s.id,
         name: s.name,
         color: s.color,
-        position: s.position,
+        sort_order: s.sort_order,
       })))
     }
     load()
@@ -41,12 +42,12 @@ export default function PipelineSettingsPage() {
   function addStage() {
     setStages(prev => [
       ...prev,
-      { name: '', color: '#6c5ce7', position: prev.length, isNew: true },
+      { name: '', color: '#6c5ce7', sort_order: prev.length, isNew: true },
     ])
   }
 
   function removeStage(index: number) {
-    setStages(prev => prev.filter((_, i) => i !== index).map((s, i) => ({ ...s, position: i })))
+    setStages(prev => prev.filter((_, i) => i !== index).map((s, i) => ({ ...s, sort_order: i })))
   }
 
   function moveStage(index: number, direction: -1 | 1) {
@@ -54,7 +55,7 @@ export default function PipelineSettingsPage() {
     if (newIndex < 0 || newIndex >= stages.length) return
     const newStages = [...stages]
     ;[newStages[index], newStages[newIndex]] = [newStages[newIndex], newStages[index]]
-    setStages(newStages.map((s, i) => ({ ...s, position: i })))
+    setStages(newStages.map((s, i) => ({ ...s, sort_order: i })))
   }
 
   async function handleSave() {
@@ -73,26 +74,28 @@ export default function PipelineSettingsPage() {
       }
 
       // Upsert stages
+      const orgId = await getOrgId(supabase)
       for (const stage of stages) {
         if (stage.id) {
           await supabase.from('deal_stages').update({
             name: stage.name,
             color: stage.color,
-            position: stage.position,
+            sort_order: stage.sort_order,
           }).eq('id', stage.id)
         } else {
           await supabase.from('deal_stages').insert({
+            organization_id: orgId,
             name: stage.name,
             color: stage.color,
-            position: stage.position,
+            sort_order: stage.sort_order,
           })
         }
       }
 
       // Reload
       const { data } = await supabase
-        .from('deal_stages').select('*').order('position')
-      setStages((data ?? []).map(s => ({ id: s.id, name: s.name, color: s.color, position: s.position })))
+        .from('deal_stages').select('*').order('sort_order')
+      setStages((data ?? []).map(s => ({ id: s.id, name: s.name, color: s.color, sort_order: s.sort_order })))
 
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)

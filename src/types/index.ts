@@ -1,6 +1,7 @@
 export interface Profile {
   id: string
-  email: string
+  organization_id: string
+  email?: string
   full_name: string
   avatar_url?: string
   role: 'owner' | 'admin' | 'member'
@@ -10,10 +11,12 @@ export interface Profile {
 
 export interface Company {
   id: string
+  organization_id: string
   name: string
   domain?: string
   industry?: string
   phone?: string
+  email?: string
   address?: string
   city?: string
   state?: string
@@ -26,15 +29,16 @@ export interface Company {
 
 export interface Contact {
   id: string
+  organization_id: string
   company_id?: string
   first_name: string
-  last_name: string
+  last_name?: string
   email?: string
   phone?: string
-  title?: string
-  source?: string
-  status: 'active' | 'inactive' | 'lead'
-  portal_access?: boolean
+  job_title?: string
+  source?: 'manual' | 'web_form' | 'newsletter' | 'voice_agent' | 'booking' | 'referral' | 'import'
+  source_site_slug?: string
+  avatar_url?: string
   notes?: string
   created_at: string
   updated_at: string
@@ -43,23 +47,28 @@ export interface Contact {
 
 export interface DealStage {
   id: string
+  organization_id: string
   name: string
-  position: number
   color: string
+  sort_order: number
+  is_won?: boolean
+  is_lost?: boolean
   created_at: string
 }
 
 export interface Deal {
   id: string
+  organization_id: string
   contact_id?: string
   company_id?: string
   stage_id: string
+  owner_id?: string
   title: string
   amount: number
-  currency: string
-  close_date?: string
   probability?: number
-  status: 'open' | 'won' | 'lost'
+  close_date?: string
+  closed_at?: string
+  sort_order?: number
   notes?: string
   created_at: string
   updated_at: string
@@ -70,14 +79,16 @@ export interface Deal {
 
 export interface Activity {
   id: string
+  organization_id: string
   contact_id?: string
   deal_id?: string
   user_id?: string
-  type: 'call' | 'email' | 'meeting' | 'task' | 'note' | 'voice_agent'
+  type: 'call' | 'email' | 'meeting' | 'task' | 'note' | 'voice_agent' | 'form_submission'
   title: string
   description?: string
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled'
   due_date?: string
-  completed: boolean
+  completed_at?: string
   metadata?: Record<string, unknown>
   created_at: string
   updated_at: string
@@ -87,9 +98,9 @@ export interface Activity {
 
 export interface Note {
   id: string
-  contact_id?: string
-  deal_id?: string
-  company_id?: string
+  organization_id: string
+  entity_type: 'contact' | 'company' | 'deal' | 'activity'
+  entity_id: string
   user_id?: string
   content: string
   created_at: string
@@ -98,9 +109,9 @@ export interface Note {
 
 export interface Tag {
   id: string
+  organization_id: string
   name: string
   color?: string
-  created_at: string
 }
 
 export interface EntityTag {
@@ -112,18 +123,20 @@ export interface EntityTag {
 
 export interface Document {
   id: string
-  contact_id?: string
-  deal_id?: string
-  company_id?: string
+  organization_id: string
+  entity_type: 'contact' | 'company' | 'deal'
+  entity_id: string
+  user_id?: string
   name: string
-  file_url: string
-  file_type?: string
+  file_path: string
   file_size?: number
+  mime_type?: string
   created_at: string
 }
 
 export interface EmailTemplate {
   id: string
+  organization_id: string
   name: string
   subject: string
   body: string
@@ -136,6 +149,7 @@ export interface EmailTemplate {
 
 export interface Product {
   id: string
+  organization_id: string
   name: string
   description?: string
   price: number
@@ -146,6 +160,7 @@ export interface Product {
 
 export interface Invoice {
   id: string
+  organization_id: string
   contact_id?: string
   deal_id?: string
   invoice_number: string
@@ -177,6 +192,7 @@ export interface InvoiceItem {
 
 export interface CinematicSite {
   id: string
+  organization_id: string
   name: string
   slug: string
   domain?: string
@@ -198,6 +214,7 @@ export interface WorkflowAction {
 
 export interface Workflow {
   id: string
+  organization_id: string
   name: string
   description?: string
   trigger_type: WorkflowTrigger

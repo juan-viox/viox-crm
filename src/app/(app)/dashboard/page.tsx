@@ -17,22 +17,22 @@ export default async function DashboardPage() {
   // Fetch all stats in parallel
   const [contactsRes, dealsRes, wonDealsRes, activitiesRes, recentActivitiesRes, stagesRes, upcomingRes] = await Promise.all([
     supabase.from('contacts').select('id', { count: 'exact', head: true }),
-    supabase.from('deals').select('id, amount').eq('status', 'open'),
-    supabase.from('deals').select('amount, created_at').eq('status', 'won'),
+    supabase.from('deals').select('id, amount').is('closed_at', null),
+    supabase.from('deals').select('amount, created_at, closed_at, stage_id'),
     supabase.from('activities')
       .select('id', { count: 'exact', head: true })
-      .eq('completed', false)
+      .eq('status', 'pending')
       .lte('due_date', new Date().toISOString().split('T')[0] + 'T23:59:59'),
     supabase.from('activities')
       .select('*, contact:contacts(first_name, last_name)')
       .order('created_at', { ascending: false })
       .limit(10),
     supabase.from('deal_stages')
-      .select('id, name, color, position')
-      .order('position'),
+      .select('id, name, color, sort_order, is_won')
+      .order('sort_order'),
     supabase.from('activities')
-      .select('id, title, type, due_date, completed')
-      .eq('completed', false)
+      .select('id, title, type, due_date, status')
+      .in('status', ['pending', 'in_progress'])
       .gte('due_date', new Date().toISOString().split('T')[0])
       .order('due_date', { ascending: true })
       .limit(5),
@@ -41,8 +41,10 @@ export default async function DashboardPage() {
   const totalContacts = contactsRes.count ?? 0
   const openDeals = dealsRes.data ?? []
   const openDealCount = openDeals.length
-  const wonDeals = wonDealsRes.data ?? []
-  const revenue = wonDeals.reduce((sum, d) => sum + (d.amount || 0), 0)
+  const allDealsForRevenue = wonDealsRes.data ?? []
+  const wonStageIds = new Set((stagesRes.data ?? []).filter((s: any) => s.is_won).map((s: any) => s.id))
+  const wonDeals = allDealsForRevenue.filter((d: any) => wonStageIds.has(d.stage_id))
+  const revenue = wonDeals.reduce((sum: number, d: any) => sum + (d.amount || 0), 0)
   const tasksDueToday = activitiesRes.count ?? 0
   const recentActivities = recentActivitiesRes.data ?? []
   const stages = stagesRes.data ?? []
@@ -82,7 +84,7 @@ export default async function DashboardPage() {
   const { data: dealsWithStages } = await supabase
     .from('deals')
     .select('stage_id, amount')
-    .eq('status', 'open')
+    .is('closed_at', null)
 
   const pipelineData = stages.map(stage => {
     const stDeals = (dealsWithStages ?? []).filter(d => d.stage_id === stage.id)
@@ -114,12 +116,12 @@ export default async function DashboardPage() {
         createdAt: a.created_at,
       }))}
       pipelineData={pipelineData}
-      upcomingTasks={upcomingTasks.map(t => ({
+      upcomingTasks={upcomingTasks.map((t: any) => ({
         id: t.id,
         title: t.title,
         type: t.type,
         dueDate: t.due_date,
-        completed: t.completed,
+        completed: t.status === 'completed',
       }))}
     />
   )

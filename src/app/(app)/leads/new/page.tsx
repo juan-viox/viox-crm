@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { getOrgId } from '@/lib/utils'
 import Link from 'next/link'
 import { ArrowLeft, Loader2, Save } from 'lucide-react'
 import type { Company } from '@/types'
@@ -47,15 +48,18 @@ export default function NewLeadPage() {
     setLoading(true)
     setError('')
 
+    const orgId = await getOrgId(supabase)
+    if (!orgId) { setError('Organization not found'); setLoading(false); return }
+
     const { error: insertError } = await supabase.from('contacts').insert({
+      organization_id: orgId,
       first_name: firstName,
       last_name: lastName,
       email: email || null,
       phone: phone || null,
-      title: title || null,
+      job_title: title || null,
       company_id: companyId || null,
       source,
-      status: 'lead',
       notes: notes || null,
     })
 
