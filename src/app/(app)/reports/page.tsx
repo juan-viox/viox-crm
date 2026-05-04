@@ -64,11 +64,11 @@ export default async function ReportsPage() {
       contacts={contactsRes.data ?? []}
       activities={activitiesRes.data ?? []}
       stages={stages}
-      profiles={profilesRes.data ?? []}
-      companies={(companies ?? []).map(c => ({
-        ...c,
-        dealCount: companyDealCounts[c.id] || 0,
-      }))}
+      teamMembers={(profilesRes.data ?? []).map((p: any) => ({ id: p.id, name: p.full_name || 'Unknown' }))}
+      topCompanies={(companies ?? [])
+        .map(c => ({ name: c.name, deals: companyDealCounts[c.id] || 0 }))
+        .sort((a, b) => b.deals - a.deals)
+        .slice(0, 10)}
     />
   )
 }
