@@ -34,6 +34,15 @@ SITE_API_KEY=$API_KEY
 # Email (optional - add your Resend API key to enable email sending)
 # RESEND_API_KEY=re_...
 # RESEND_FROM_EMAIL=hello@yourdomain.com
+
+# VioX Voice integration (optional - leave empty to keep it off)
+# Key VioX Voice sends to /api/v1/agent-tools/* (falls back to SITE_API_KEY when empty)
+VOICE_AGENT_API_KEY=
+# Outbound "Call with AI agent" button (shown only when key, agent and number are all set)
+VIOX_VOICE_API_URL=
+VIOX_VOICE_API_KEY=
+VIOX_VOICE_AGENT_ID=
+VIOX_VOICE_PHONE_NUMBER_ID=
 EOF
 
 echo ""

@@ -22,6 +22,7 @@ import ContactTimeline from '@/components/contacts/ContactTimeline'
 import FileAttachments from '@/components/shared/FileAttachments'
 import NotesPanel from '@/components/shared/NotesPanel'
 import CustomFieldsRenderer from '@/components/shared/CustomFieldsRenderer'
+import VoiceCallButton from '@/components/contacts/VoiceCallButton'
 import { formatDate, formatCurrency } from '@/lib/utils'
 
 const tabs = [
@@ -42,10 +43,12 @@ export default function ContactDetailClient({
   contact,
   activities,
   deals,
+  voiceCallEnabled = false,
 }: {
   contact: any
   activities: any[]
   deals: any[]
+  voiceCallEnabled?: boolean
 }) {
   const [activeTab, setActiveTab] = useState('activity')
   const containerRef = useRef<HTMLDivElement>(null)
@@ -128,7 +131,7 @@ export default function ContactDetailClient({
               </div>
 
               {/* Quick Actions */}
-              <div className="flex items-center gap-2 mt-4">
+              <div className="flex items-center gap-2 mt-4 flex-wrap">
                 {quickActions.map((action) => (
                   <button
                     key={action.label}
@@ -142,6 +145,9 @@ export default function ContactDetailClient({
                     {action.label}
                   </button>
                 ))}
+                {voiceCallEnabled && (
+                  <VoiceCallButton contactId={contact.id} hasPhone={!!contact.phone} />
+                )}
               </div>
             </div>
           </div>
