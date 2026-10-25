@@ -10,6 +10,8 @@
  *   VIOX_VOICE_API_KEY    key the CRM sends to VioX Voice (`xi-api-key`)
  *   VIOX_VOICE_AGENT_ID   agent used for outbound "Call with AI agent"
  *   VIOX_VOICE_PHONE_NUMBER_ID  VioX Voice phone number id used as caller
+ *   VOICE_AGENT_ORG_ID    organization (id or slug) voice data goes to, needed
+ *                         when the database holds more than one organization
  */
 import { createHash, timingSafeEqual } from 'crypto'
 import { NextResponse } from 'next/server'
@@ -68,7 +70,11 @@ export function isIngestKeyValid(provided: string | null): boolean {
   return ok
 }
 
-/** Org from a cinematic_sites api key, falling back to the single organization. */
+/**
+ * Org from a cinematic_sites api key; else VOICE_AGENT_ORG_ID (id or slug);
+ * else the only organization. With several organizations and no
+ * VOICE_AGENT_ORG_ID it returns null rather than guess.
+ */
 export async function resolveOrgId(supabase: SupabaseClient, apiKey: string): Promise<string | null> {
   const { data } = await supabase
     .from('cinematic_sites')
@@ -77,8 +83,15 @@ export async function resolveOrgId(supabase: SupabaseClient, apiKey: string): Pr
     .maybeSingle()
   if (data?.organization_id) return data.organization_id
 
-  const { data: org } = await supabase.from('organizations').select('id').limit(1).maybeSingle()
-  return org?.id ?? null
+  const configured = process.env.VOICE_AGENT_ORG_ID?.trim()
+  if (configured) {
+    const column = /^[0-9a-f-]{36}$/i.test(configured) ? 'id' : 'slug'
+    const { data: org } = await supabase.from('organizations').select('id').eq(column, configured).maybeSingle()
+    return org?.id ?? null
+  }
+
+  const { data: orgs } = await supabase.from('organizations').select('id').limit(2)
+  return orgs && orgs.length === 1 ? orgs[0].id : null
 }
 
 /** Last 10 digits of a phone number ("+1 (212) 555-0100" -> "2125550100"). */

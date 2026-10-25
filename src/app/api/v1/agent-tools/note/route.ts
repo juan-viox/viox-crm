@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     const supabase = createAdminClient()
     const orgId = await resolveOrgId(supabase, auth.apiKey)
     if (!orgId) {
-      return NextResponse.json({ error: 'No organization found' }, { status: 500, headers: corsHeaders })
+      return NextResponse.json({ error: 'No organization found (set VOICE_AGENT_ORG_ID when the CRM holds several)' }, { status: 500, headers: corsHeaders })
     }
 
     const contact = contact_id

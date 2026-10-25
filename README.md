@@ -94,6 +94,7 @@ VioX Voice (voice AI agents) can read and write CRM data during and after calls,
 | `VIOX_VOICE_API_KEY` | Key the CRM sends to VioX Voice (`xi-api-key`). |
 | `VIOX_VOICE_AGENT_ID` | Agent used for outbound calls. |
 | `VIOX_VOICE_PHONE_NUMBER_ID` | VioX Voice phone number id the call comes from. |
+| `VOICE_AGENT_ORG_ID` | Organization (id or slug) that voice calls, leads and notes go to. Needed only when the database holds more than one organization; without it such a database answers 500 rather than guess. |
 
 The "Call with AI agent" button on a contact page appears only when `VIOX_VOICE_API_KEY`, `VIOX_VOICE_AGENT_ID` and `VIOX_VOICE_PHONE_NUMBER_ID` are all set.
 
