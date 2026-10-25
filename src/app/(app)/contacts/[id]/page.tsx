@@ -1,6 +1,7 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import ContactDetailClient from './ContactDetailClient'
+import { isVoiceOutboundConfigured } from '@/lib/voice-integration'
 
 export default async function ContactDetailPage({
   params,
@@ -35,6 +36,7 @@ export default async function ContactDetailPage({
       contact={contact}
       activities={activities ?? []}
       deals={deals ?? []}
+      voiceCallEnabled={isVoiceOutboundConfigured()}
     />
   )
 }
