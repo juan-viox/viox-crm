@@ -49,11 +49,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setTheme(theme === 'dark' ? 'light' : 'dark')
   }, [theme, setTheme])
 
-  // Prevent flash of wrong theme
-  if (!mounted) {
-    return <>{children}</>
-  }
-
+  // Always render the provider so SSR'd children that call useTheme() don't
+  // throw during server rendering (any descendant of `(app)` layout is
+  // server-rendered first). The inline script in app/layout.tsx applies the
+  // correct `data-theme` attribute before hydration, so there is no FOUC.
+  // `mounted` is kept for future client-only effects gating.
+  void mounted;
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
       {children}
