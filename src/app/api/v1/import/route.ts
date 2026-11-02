@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server'
+import { requireStaff } from '@/lib/require-staff'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function POST(request: Request) {
+  const denied = await requireStaff()
+  if (denied) return denied
+
   try {
     const { entityType, records } = await request.json()
 
