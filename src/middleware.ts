@@ -17,7 +17,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // ── 3. Always allow public API routes ──
+  // ── 3. API routes skip the redirect; each one checks auth itself (see lib/require-staff) ──
   if (pathname.startsWith('/api/')) {
     return NextResponse.next()
   }

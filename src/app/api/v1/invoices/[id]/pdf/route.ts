@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { requireStaff } from '@/lib/require-staff'
 import { createAdminClient } from '@/lib/supabase/admin'
 import crmConfig from '@/crm.config'
 
@@ -6,6 +7,9 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const denied = await requireStaff()
+  if (denied) return denied
+
   try {
     const { id } = await params
     const supabase = createAdminClient()

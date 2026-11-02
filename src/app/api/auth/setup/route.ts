@@ -12,6 +12,30 @@ export async function POST(request: Request) {
 
     const supabase = createAdminClient()
 
+    // Signup has no session yet (email confirmation), so verify the caller's
+    // claim instead: the user must be real, match the email, and be brand new.
+    const { data: authUser } = await supabase.auth.admin.getUserById(userId)
+    const createdAt = authUser?.user ? Date.parse(authUser.user.created_at) : 0
+    if (
+      !authUser?.user ||
+      authUser.user.email?.toLowerCase() !== String(email ?? '').toLowerCase() ||
+      Date.now() - createdAt > 15 * 60 * 1000
+    ) {
+      return NextResponse.json({ error: 'Invalid signup' }, { status: 403 })
+    }
+
+    // Only the first signup becomes owner; everyone else joins by invite.
+    const { count: owners } = await supabase
+      .from('profiles')
+      .select('id', { count: 'exact', head: true })
+      .eq('role', 'owner')
+    if (owners) {
+      return NextResponse.json(
+        { error: 'This CRM is already set up. Ask the owner to invite you from Settings → Team.' },
+        { status: 403 }
+      )
+    }
+
     // Check if an organization exists, if not create one
     let orgId: string
     const { data: existingOrg } = await supabase
